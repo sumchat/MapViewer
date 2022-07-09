@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/welcomeFragment">
+
+    <fragment
+        android:id="@+id/welcomeFragment"
+        android:name="com.example.android.mapviewer.WelcomeFragment"
+        android:label="fragment_welcome"
+        tools:layout="@layout/fragment_welcome" >
+        <action
+            android:id="@+id/action_welcomeFragment_to_mapGalleryFragment"
+            app:destination="@id/mapGalleryFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.android.mapviewer.MapFragment"
+        android:label="fragment_mappage"
+        tools:layout="@layout/fragment_mappage" >
+        <argument android:name="myArg"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/mapGalleryFragment"
+        android:name="com.example.android.mapviewer.MapGalleryFragment"
+        android:label="fragment_map_gallery"
+        tools:layout="@layout/fragment_map_gallery">
+        <action
+            android:id="@+id/action_mapGalleryFragment_to_mapFragment"
+            app:destination="@id/mapFragment" >
+            <argument
+                android:name="myArg"
+                app:argType= "string"
+
+
+            />
+            </action>
+    </fragment>
+</navigation>
