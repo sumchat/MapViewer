@@ -47,7 +47,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
            android:id="@+id/sheet_container"
            android:layout_width="match_parent"
-           android:layout_height="832dp"
+           android:layout_height="match_parent"
            android:background="@color/white"
            app:behavior_hideable="false"
            app:behavior_peekHeight="@dimen/dimen_32"
