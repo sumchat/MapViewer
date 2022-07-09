@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.databinding.DataBindingUtil.setContentView
@@ -47,6 +48,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
     private lateinit var viewOfLayout: View
     private lateinit var viewOfLayoutresults: View
     private lateinit var mRecyclerView1: RecyclerView
+    private lateinit var headerText: TextView
 
     private lateinit  var portalItem:PortalItem
     private val selectedFeatures by lazy { ArrayList<Feature>() }
@@ -58,7 +60,8 @@ class MapFragment : Fragment(){//AppCompatActivity() {
     }
 
     private val mapView: MapView by lazy {
-        activityMainBinding.mapView
+        viewOfLayoutresults.findViewById(R.id.mapView)
+        //activityMainBinding.mapView
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +91,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         }
         viewOfLayoutresults = inflater.inflate(R.layout.fragment_mappage, container, false)
          mRecyclerView1 = viewOfLayoutresults.findViewById(R.id.recycler_view1)
+        headerText = viewOfLayoutresults.findViewById(R.id.textView3)
 
         var args = MapFragmentArgs.fromBundle(requireArguments())
        // val _itemId = getArguments()?.getString("itemId")
@@ -97,7 +101,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
 
         setupMap(_itemId)
         //viewOfLayout = inflater.inflate(R.layout.fieldvalue_row, container, false)
-         return activityMainBinding.root
+        return viewOfLayoutresults // activityMainBinding.root
 
     }
 
@@ -166,6 +170,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
     {
          val featureTable = _feature.featureTable;
         val _popupDefinition = popup.popupDefinition
+
         val _fields = _popupDefinition.fields
         val _visibleFields:MutableList<PopupField> = mutableListOf<PopupField>()
         val _flditems:MutableList<FieldItem> = mutableListOf<FieldItem>()
@@ -195,7 +200,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         var totalCount:Int = 0
         var mFieldLabelList:List<FieldItem>
         //val mRecyclerView1: RecyclerView = viewOfLayoutresults.findViewById(R.id.recycler_view1)
-        androidx.core.view.ViewCompat.setNestedScrollingEnabled(mRecyclerView1, false);
+       // androidx.core.view.ViewCompat.setNestedScrollingEnabled(mRecyclerView1, true);
 
         for (identifyLayerResult in identifyLayerResults) {
             if(totalCount === 0) {
@@ -214,6 +219,9 @@ class MapFragment : Fragment(){//AppCompatActivity() {
                     layerName,
                     identifyLayerResult.popups.first()
                 )
+
+                headerText.text =  identifyLayerResult.popups.first().title
+
               /*  _fieldItemAdapter = FieldValueAdapter(fldItems
                 ) { fldItem ->
                     adapterOnClick(fldItem)

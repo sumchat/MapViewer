@@ -69,7 +69,7 @@ class FieldValueAdapter():
 
 
     }
-    /* override fun getItemCount(): Int {
+   /*  override fun getItemCount(): Int {
          return fieldItems.size
      }*/
 }
