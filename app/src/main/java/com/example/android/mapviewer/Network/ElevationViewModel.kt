@@ -50,14 +50,15 @@ import java.text.DecimalFormat
                 withContext(Dispatchers.IO){
                    //. if(response != null){
                   if(response.isSuccessful) {
-                      val _body =  response.body().toString()
+                      val _body = response.body()?.string()//.toString()
+
 
                            //JsonParser.parseString(
                           //response.body()
                            //   ?.string() // About this thread blocking annotation : https://github.com/square/retrofit/issues/3255
                     //  )
 
-                      Log.d("Logs", "done")
+                      Log.d("Logs", "done...")
                   }
                     else
                   {
@@ -135,11 +136,15 @@ import java.text.DecimalFormat
             var fieldsObj = listOf(_fieldObj)
             var _oidObj = OIDObj(OID = 1)
             var _wkidObj = WkidObj(wkid = 102100, latestWkid = 3857)
+            var geometryWithoutZ = GeometryEngine.removeZAndM(mFeature.geometry)
+            var _geomObj = GeomObj(geometryWithoutZ.toJson())
 
             var _inputLineFeatures = InputObj(
                 fields = fieldsObj, geometryType = "esriGeometryPolyline", attributes = _oidObj,
-                sr = _wkidObj
+                sr = _wkidObj, features = listOf(_geomObj)
             )
+
+           // _inputLineFeatures.features = listOf(_geomObj)
 
             var elevRequestParam = ElevationRequestParam(
                 InputLineFeatures = _inputLineFeatures,

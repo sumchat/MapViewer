@@ -177,7 +177,13 @@ data class InputObj(
 
     val attributes:OIDObj,
 
-    val sr:WkidObj
+    val sr:WkidObj,
+
+    val features:List<GeomObj>?
+)
+
+data class GeomObj(
+    val geometry:String
 )
 
 
