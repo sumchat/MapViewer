@@ -256,13 +256,13 @@ data class GeomPath(
     val paths: List<List<PointObj2>>,
     val spatialReference: WkidObj
 )
-@JsonClass(generateAdapter = true)
+//@JsonClass(generateAdapter = true)
 data class BaseDataModel (
     val hasZ: Boolean?,
-    val paths : ArrayList<ArrayList<ArrayList<Double>>>,
+    val paths : List<List<List<Double>>>,
     val spatialReference : SpatialReference1?
 )
-@JsonClass(generateAdapter = true)
+//@JsonClass(generateAdapter = true)
 data class SpatialReference1 (
     val wkid : Int? = null,
     val latestWkid : Int?

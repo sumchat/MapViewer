@@ -87,14 +87,14 @@ chartView.marker = MyMarker(context)
         // Giving the binding access to the OverviewViewModel
         binding.viewModel = elevViewModel
 
-        elevViewModel.response.observe(viewLifecycleOwner)
+       /* elevViewModel.response.observe(viewLifecycleOwner)
         {
             response ->
             if(response != null)
             {
                 processChartData(response)
             }
-        }
+        }*/
         elevViewModel.getElevationData(mFeature)
         return binding.root
     }

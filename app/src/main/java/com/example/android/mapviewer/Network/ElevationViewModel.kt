@@ -16,29 +16,62 @@ import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
  class ElevationViewModel: ViewModel() {
     private val _response = MutableLiveData<ElevationResponse?>()
-     /*val moshi = Moshi.Builder()
+     private val moshi = Moshi.Builder()
          .add(KotlinJsonAdapterFactory())
-         .build()*/
+         .build()
+     //MoshiConverterFactory.create(moshi).asLenient()
 
     val response: MutableLiveData<ElevationResponse?>
         get() = _response
 
 
     private fun getElevationProfile(params: ElevationRequestParam) {
-        viewModelScope.launch {
+        viewModelScope.launch{
             //_status.value = MarsApiStatus.LOADING
             try {
-                _response.value = ElevationApi.retrofitService.getElevationData(params)
+                val jsonReqAdapter =
+                    moshi.adapter<ElevationRequestParam>(ElevationRequestParam::class.java)//moshi.adapter<Product>(Product::class.java!!)
+                // val geomJsonObj = mFeature.geometry.toJson()
+
+                val reqJson = jsonReqAdapter.toJson(params)
+                val reqJsonString = reqJson.toString()
+                val _requestbody = reqJsonString.toRequestBody("application/json".toMediaTypeOrNull())
+                val response = ElevationApi.retrofitService.getElevationData(_requestbody)
+                withContext(Dispatchers.IO){
+                   //. if(response != null){
+                  if(response.isSuccessful) {
+                      val _body =  response.body().toString()
+
+                           //JsonParser.parseString(
+                          //response.body()
+                           //   ?.string() // About this thread blocking annotation : https://github.com/square/retrofit/issues/3255
+                    //  )
+
+                      Log.d("Logs", "done")
+                  }
+                    else
+                  {
+                      Log.d("Logs", "done")
+                  }
+                }
+                //_response.value = ElevationApi.retrofitService.getElevationData(_requestbody)
+                Log.d("Logs", "done")
+
                // _status.value = MarsApiStatus.DONE
             } catch (e: Exception) {
                 //_status.value = MarsApiStatus.ERROR
                 _response.value = null
+                Log.d("Logs", e.toString())
             }
         }
     }
@@ -76,10 +109,10 @@ import java.text.DecimalFormat
          //val moshi = Moshi.Builder().build()
 
 
-
+            val geomJsonObj = mFeature.geometry.toJson()
             val jsonAdapter =
                moshi.adapter<BaseDataModel>(BaseDataModel::class.java)//moshi.adapter<Product>(Product::class.java!!)
-            val geomJsonObj = mFeature.geometry.toJson()
+           // val geomJsonObj = mFeature.geometry.toJson()
 
             val geomJson = jsonAdapter.fromJson(geomJsonObj)
 
@@ -87,7 +120,8 @@ import java.text.DecimalFormat
             var no_vertices = 0
 
             if (geomJson != null) {
-                for (k in 0..geomJson.paths.size) {
+                val _to = geomJson.paths.size - 1
+                for (k in 0.._to) {
                     val _path = geomJson.paths[k]
                     no_vertices += _path.size
                 }
