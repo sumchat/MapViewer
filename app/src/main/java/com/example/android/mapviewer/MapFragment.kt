@@ -1,28 +1,20 @@
 package com.example.android.mapviewer
 
+import ViewPagerAdapter
 import android.content.Context
 import android.graphics.Point
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.widget.LinearLayout
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.NonNull
-import androidx.databinding.DataBindingUtil.setContentView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.activity.viewModels
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
 import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.layers.FeatureLayer
@@ -32,13 +24,11 @@ import com.esri.arcgisruntime.mapping.popup.PopupField
 import com.esri.arcgisruntime.mapping.view.MapView
 import com.esri.arcgisruntime.portal.Portal
 import com.esri.arcgisruntime.portal.PortalItem
-import com.example.android.mapviewer.data.DataSource
 import com.example.android.mapviewer.databinding.FragmentMappageBinding
-import com.example.android.mapviewer.databinding.FragmentWelcomeBinding
-import com.google.android.material.navigation.NavigationView
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener
 import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult
 import com.example.android.mapviewer.data.FieldItem
+import com.google.android.material.tabs.TabLayout
 import kotlin.math.roundToInt
 //import com.esri.arcgisruntime.toolkit.popup.PopupViewModel
 
@@ -49,6 +39,9 @@ class MapFragment : Fragment(){//AppCompatActivity() {
     private lateinit var viewOfLayoutresults: View
     private lateinit var mRecyclerView1: RecyclerView
     private lateinit var headerText: TextView
+    private lateinit var tabView:View
+    private lateinit var viewPager: ViewPager2 // creating object of ViewPager
+    private lateinit var tabLayout: TabLayout
 
     private lateinit  var portalItem:PortalItem
     private val selectedFeatures by lazy { ArrayList<Feature>() }
@@ -90,8 +83,17 @@ class MapFragment : Fragment(){//AppCompatActivity() {
             thiscontext = container.getContext()
         }
         viewOfLayoutresults = inflater.inflate(R.layout.fragment_mappage, container, false)
-         mRecyclerView1 = viewOfLayoutresults.findViewById(R.id.recycler_view1)
-        headerText = viewOfLayoutresults.findViewById(R.id.textView3)
+        // mRecyclerView1 = viewOfLayoutresults.findViewById(R.id.recycler_view1)
+        //headerText = viewOfLayoutresults.findViewById(R.id.textView3)
+
+
+        tabView = viewOfLayoutresults.findViewById<View>(R.id.identify)//.visibility = View.VISIBLE
+
+        tabLayout = viewOfLayoutresults.findViewById<TabLayout>(R.id.tab_layout)
+        viewPager = viewOfLayoutresults.findViewById<ViewPager2>(R.id.pager)
+
+
+
 
         var args = MapFragmentArgs.fromBundle(requireArguments())
        // val _itemId = getArguments()?.getString("itemId")
@@ -103,6 +105,37 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         //viewOfLayout = inflater.inflate(R.layout.fieldvalue_row, container, false)
         return viewOfLayoutresults // activityMainBinding.root
 
+    }
+
+    fun setUpTabs(fldItems:MutableList<FieldItem>,title:String,_feature:Feature,featureType:String){
+       when(featureType.uppercase()){
+           "POLYLINE" ->
+           {
+               tabLayout!!.addTab(tabLayout!!.newTab().setText("Feature"))
+               tabLayout!!.addTab(tabLayout!!.newTab().setText("Profile"))
+           }
+           else ->{
+               tabLayout!!.addTab(tabLayout!!.newTab().setText("Feature"))
+           }
+
+
+       }
+        tabLayout!!.tabGravity = TabLayout.GRAVITY_FILL
+        val identifyAdapter = IdentifyFragmentAdapter(fldItems,_feature,requireActivity(),tabLayout!!.tabCount)//ViewPagerAdapter(this, supportFragmentManager, tabLayout!!.tabCount)
+        viewPager!!.adapter = identifyAdapter
+
+        tabLayout!!.addOnTabSelectedListener(object:TabLayout.OnTabSelectedListener{
+            override fun onTabSelected(tab:TabLayout.Tab)
+            {
+                viewPager!!.currentItem = tab.position
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab) {
+
+            }
+            override fun onTabReselected(tab: TabLayout.Tab) {
+
+            }
+        })
     }
 
     private fun setupMap(_itemId:String) {
@@ -166,7 +199,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         }
     }
 
-    private fun populateIdentifyProperties(_feature:Feature,layerName:String,popup:Popup):List<FieldItem>
+    private fun populateIdentifyProperties(_feature:Feature,layerName:String,popup:Popup):MutableList<FieldItem>
     {
          val featureTable = _feature.featureTable;
         val _popupDefinition = popup.popupDefinition
@@ -213,36 +246,19 @@ class MapFragment : Fragment(){//AppCompatActivity() {
                 //selectedFeatures.addAll(identifiedFeatures)
                 // featureLayer?.selectFeature(identifyLayerResult.popups.first().geoElement as Feature)
                 val _feature = identifyLayerResult.popups.first().geoElement as Feature
+
                 featureLayer?.selectFeature(_feature)
                 val fldItems = populateIdentifyProperties(
                     _feature,
                     layerName,
                     identifyLayerResult.popups.first()
                 )
+                val _title = identifyLayerResult.popups.first().title
+                val _featureType = featureLayer?.featureTable?.geometryType//"Point"
 
-                headerText.text =  identifyLayerResult.popups.first().title
-
-              /*  _fieldItemAdapter = FieldValueAdapter(fldItems
-                ) { fldItem ->
-                    adapterOnClick(fldItem)
-                }*/
-
-                _fieldItemAdapter = FieldValueAdapter()
+                setUpTabs(fldItems,_title,_feature,_featureType.toString())
 
 
-
-
-
-                if (mRecyclerView1 != null) {
-                    mRecyclerView1.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL ,false)
-
-                    mRecyclerView1.adapter = _fieldItemAdapter
-                    _fieldItemAdapter.submitList(fldItems)
-
-
-                   // _fieldItemAdapter.notifyDataSetChanged();
-
-                }
 
 
                 // add the features to the current feature layer selection
