@@ -1,7 +1,6 @@
 package com.example.android.mapviewer.network
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,25 +10,21 @@ import com.esri.arcgisruntime.geometry.GeometryEngine
 import com.esri.arcgisruntime.geometry.Polyline
 import com.esri.arcgisruntime.geometry.SpatialReference
 import com.example.android.mapviewer.data.*
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.JsonDataException
-import com.squareup.moshi.JsonReader
-import com.squareup.moshi.Moshi
+import com.squareup.moshi.*
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.math.RoundingMode
-import java.text.DecimalFormat
+import org.json.JSONObject
 
- class ElevationViewModel: ViewModel() {
+class ElevationViewModel: ViewModel() {
     private val _response = MutableLiveData<ElevationResponse?>()
      private val moshi = Moshi.Builder()
          .add(KotlinJsonAdapterFactory())
          .build()
-     //MoshiConverterFactory.create(moshi).asLenient()
+
 
     val response: MutableLiveData<ElevationResponse?>
         get() = _response
@@ -40,23 +35,20 @@ import java.text.DecimalFormat
             //_status.value = MarsApiStatus.LOADING
             try {
                 val jsonReqAdapter =
-                    moshi.adapter<ElevationRequestParam>(ElevationRequestParam::class.java)//moshi.adapter<Product>(Product::class.java!!)
+                   moshi.adapter<ElevationRequestParam>(ElevationRequestParam::class.java)//moshi.adapter<Product>(Product::class.java!!)
                 // val geomJsonObj = mFeature.geometry.toJson()
 
                 val reqJson = jsonReqAdapter.toJson(params)
-                val reqJsonString = reqJson.toString()
-                val _requestbody = reqJsonString.toRequestBody("application/json".toMediaTypeOrNull())
+                //val reqJsonString = reqJson.toString()
+                val _requestbody = reqJson.toRequestBody("application/json".toMediaTypeOrNull())
                 val response = ElevationApi.retrofitService.getElevationData(_requestbody)
                 withContext(Dispatchers.IO){
                    //. if(response != null){
                   if(response.isSuccessful) {
-                      val _body = response.body()?.string()//.toString()
+                      val _body = response.body()//.toString()
+                     // val jsonResponseAdapter =
+                     //     moshi.adapter<ElevationResponse>(ElevationResponse::class.java)
 
-
-                           //JsonParser.parseString(
-                          //response.body()
-                           //   ?.string() // About this thread blocking annotation : https://github.com/square/retrofit/issues/3255
-                    //  )
 
                       Log.d("Logs", "done...")
                   }
@@ -65,7 +57,7 @@ import java.text.DecimalFormat
                       Log.d("Logs", "done")
                   }
                 }
-                //_response.value = ElevationApi.retrofitService.getElevationData(_requestbody)
+
                 Log.d("Logs", "done")
 
                // _status.value = MarsApiStatus.DONE
@@ -77,7 +69,7 @@ import java.text.DecimalFormat
         }
     }
 
-   // fun getElevationData(params:ElevationRequestParam)
+
     fun getElevationData(mFeature:Feature)
     {
         val projectedFeature: Geometry
@@ -95,19 +87,9 @@ import java.text.DecimalFormat
         val roundoff_dist = df.format(trailLength)*/
         var maxDistanceSampleSize = 0
         val no_of_vertices = 0
-       // val geomJson = mFeature.geometry.toJson() as PathObj
-       /* val moshi = Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
-            .build()*/
+
         try {
 
-           // val moshi: Moshi = Moshi.Builder().build()
-           // val jsonAdapter: JsonAdapter<BaseDataModel> = moshi.adapter<BaseDataModel>(BaseDataModel::class.java)
-
-            // val moshi:Moshi = Moshi.Builder()
-        //    .add(KotlinJsonAdapterFactory())
-        //    .build()
-         //val moshi = Moshi.Builder().build()
 
 
             val geomJsonObj = mFeature.geometry.toJson()
@@ -132,16 +114,30 @@ import java.text.DecimalFormat
             if ((no_vertices > 200) && (no_of_vertices < 1024))
                 maxDistanceSampleSize = (trailLength / 1500).toInt()
 
-            var _fieldObj = FieldObj(name = "OID", type = "esriFieldTypeObjectID", alias = "OID")
+            var _fieldObj = FieldsItem(name = "OID", type = "esriFieldTypeObjectID", alias = "OID")
             var fieldsObj = listOf(_fieldObj)
-            var _oidObj = OIDObj(OID = 1)
-            var _wkidObj = WkidObj(wkid = 102100, latestWkid = 3857)
+            var _oidObj = Attributes(OID = 1)
+            var _wkidObj = SpatialReference(latestWkid = 3857,wkid = 102100)
             var geometryWithoutZ = GeometryEngine.removeZAndM(mFeature.geometry)
-            var _geomObj = GeomObj(geometryWithoutZ.toJson())
 
-            var _inputLineFeatures = InputObj(
+           // val geomJsonObj1 = geometryWithoutZ.toJson()
+
+            var _geomObj = geometryWithoutZ.toJson()
+
+           // var _geomObj1 = JSONObject(geometryWithoutZ.toJson())
+
+            val featgeomObject = jsonAdapter.fromJson(_geomObj)
+              //JSON.parse(_geomObj)
+            var _paths = featgeomObject?.paths//_geomObj1["paths"]
+            var _spref = featgeomObject?.spatialReference//_geomObj1["spatialReference"]
+            var _geometryItem = GeometryItem(paths= _paths ,
+                spatialReference= _spref )
+
+            var _featuresItem = FeaturesItem(geometry=_geometryItem)
+
+            var _inputLineFeatures = InputLineFeaturesObj(
                 fields = fieldsObj, geometryType = "esriGeometryPolyline", attributes = _oidObj,
-                sr = _wkidObj, features = listOf(_geomObj)
+                spatialReference = _wkidObj, features = listOf(_featuresItem)
             )
 
            // _inputLineFeatures.features = listOf(_geomObj)
@@ -150,8 +146,7 @@ import java.text.DecimalFormat
                 InputLineFeatures = _inputLineFeatures,
                 ProfileIDField = "OID",
                 DEMResolution = "FINEST",
-                MaximumSampleDistance = maxDistanceSampleSize.toString(),
-                MaximumSampleDistanceUits = "Meters",
+                MaximumSampleDistanceUnits = "Meters",
                 returnZ = "true",
                 returnM = "true",
                 f = "json"

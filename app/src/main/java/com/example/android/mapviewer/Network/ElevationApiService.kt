@@ -21,7 +21,7 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
 
-private const val BASE_URL = "https://elevation.arcgis.com/arcgis/rest/services/Tools/ElevationSync/GPServer/"
+private const val BASE_URL = "https://elevation.arcgis.com"
 
 /**
  * Build the Moshi object that Retrofit will be using, making sure to add the Kotlin adapter for
@@ -60,8 +60,9 @@ interface ElevationApiService {
      * The @GET annotation indicates that the "realestate" endpoint will be requested with the GET
      * HTTP method
      */
-    @POST("Profile/execute")
-    suspend fun getElevationData(@Body requestParams: RequestBody):Response<ResponseBody>//ElevationResponse
+    //@POST("Profile/execute")
+    @POST("/arcgis/rest/services/Tools/ElevationSync/GPServer/Profile/execute")
+    suspend fun getElevationData(@Body requestParams: RequestBody):Response<ResponseBody>//Response<ElevationResponse>//Response<ResponseBody>//ElevationResponse
 
 }
 /**

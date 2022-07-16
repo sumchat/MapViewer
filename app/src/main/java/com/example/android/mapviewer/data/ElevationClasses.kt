@@ -1,7 +1,9 @@
 package com.example.android.mapviewer.data
 
+import com.esri.arcgisruntime.geometry.Geometry
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import org.json.JSONObject
 
 /*@JsonClass(generateAdapter = true)
 data class FieldObj(
@@ -183,7 +185,7 @@ data class InputObj(
 )
 
 data class GeomObj(
-    val geometry:String
+    val geometry:JSONObject
 )
 
 
@@ -191,15 +193,14 @@ data class GeomObj(
 
 data class ElevationRequestParam(
 
-    val InputLineFeatures: InputObj,
+    val InputLineFeatures: InputLineFeaturesObj,
 
     val ProfileIDField: String,
 
     val DEMResolution:String,
 
-    val MaximumSampleDistance:String,
 
-    val MaximumSampleDistanceUits:String,
+    val MaximumSampleDistanceUnits:String,
 
     val returnZ:String,
 
@@ -217,16 +218,7 @@ data class WkidObj(
     val latestWkid:Int
 )
 
-data class FeatureAttrib(
 
-    val OBJECTID:Long,
-
-    val DEMResolution: Long,
-
-    val ProfileLength: Double,
-
-    val Shape_Length: Double
-)
 @JsonClass(generateAdapter = true)
 data class PointObj(
 
@@ -252,10 +244,7 @@ data class PointObj2(
 )
 
 
-data class PathObj(
 
-    val paths:List<List<PointObj>>
-)
 
 data class GeomPath(
     val hasZ: Boolean,
@@ -274,11 +263,19 @@ data class SpatialReference1 (
     val latestWkid : Int?
 )
 
-
+data class PathObj(
+    val hasZ:Boolean,
+    val hasM:Boolean,
+    val paths:List<List<List<Double>>>
+)
+data class FeatureAttrib(
+    val OBJECTID:Long,
+    val DEMResolution: String,
+    val ProfileLength: Double,
+    val Shape_Length: Double
+)
 data class FeatureAttributes(
-
     val attributes:FeatureAttrib,
-
     val geometry:PathObj
 )
 
@@ -298,13 +295,15 @@ data class FeaturesObj(
 
 data class Responsevalue(
 
-    val displayFieldName:String,
+    val displayFieldName:String?,
+    val hasZ:Boolean,
+    val hasM:Boolean,
 
     val geometryType:String,
 
     val spatialReference:WkidObj,
 
-    val fields:List<String>,
+    val fields:List<FieldObj>,
 
     val features:List<FeatureAttributes>,
 
@@ -316,11 +315,8 @@ data class Responsevalue(
 
 
 data class Dataset(
-
     val paramName:String,
-
     val dataType:String,
-
     val value:Responsevalue
 
 )
@@ -332,6 +328,6 @@ data class ElevationResponse(
 
     val results:List<Dataset>,
 
-    val messages:List<String>
+    val messages:List<String>?
 
 )

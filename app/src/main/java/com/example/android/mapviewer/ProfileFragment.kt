@@ -108,8 +108,8 @@ chartView.marker = MyMarker(context)
            for(j in 0.._paths[i].size)
            {
                val xyzm = _paths[i][j];
-               val dist = ((xyzm.m) * 0.000621371) //metersToMiles
-               val elev = xyzm.y * 3.28084
+               val dist =((xyzm[3]) * 0.000621371) //((xyzm.m) * 0.000621371) //metersToMiles
+               val elev = xyzm[1] * 3.28084 //xyzm.y * 3.28084
                val df = DecimalFormat("#.###")
                df.roundingMode = RoundingMode.DOWN
                val roundoff_dist = df.format(dist)
