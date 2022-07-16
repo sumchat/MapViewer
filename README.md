@@ -11,4 +11,9 @@ Choose a map e.g. the Tahoe one by clicking on the title
 
 click on any feature on the map. The feature should get selected. The recyclerview should also get populated. But the issue is it is not
 
-![image](https://user-images.githubusercontent.com/6456871/178089782-b5e9f1f5-4b6b-417e-b359-6433824a154e.png)
+
+
+![image](https://user-images.githubusercontent.com/6456871/179329758-5f57c1ef-ca34-4dcc-b560-bb6aaaa3600e.png)
+
+![image](https://user-images.githubusercontent.com/6456871/179329777-2884cb3c-fa36-4029-8166-a013feb09d21.png)
+![image](https://user-images.githubusercontent.com/6456871/179329793-4fc9acaa-39c2-4874-811f-4069589ee3e9.png)
