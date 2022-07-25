@@ -17,7 +17,7 @@
         <com.esri.arcgisruntime.mapping.view.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
-            android:layout_height="600dp"
+            android:layout_height="match_parent"
             android:layout_marginTop="0dp"
             android:layout_marginBottom="0dp"
             app:layout_constraintBottom_toTopOf="@+id/container"
@@ -42,15 +42,15 @@
                 android:focusable="true"
                 android:layout_marginTop="8dp"/>
 
-        </LinearLayout>-->
+        </LinearLayout>"@dimen/dimen_32"-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
            android:id="@+id/sheet_container"
            android:layout_width="match_parent"
            android:layout_height="match_parent"
            android:background="@color/white"
-           app:behavior_hideable="false"
-           app:behavior_peekHeight="@dimen/dimen_32"
+           app:behavior_hideable="true"
+           app:behavior_peekHeight="1dp"
            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
           <!-- <androidx.appcompat.widget.AppCompatImageView

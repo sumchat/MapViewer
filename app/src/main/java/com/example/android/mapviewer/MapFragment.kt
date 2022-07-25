@@ -11,7 +11,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -28,8 +31,18 @@ import com.example.android.mapviewer.databinding.FragmentMappageBinding
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener
 import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult
 import com.example.android.mapviewer.data.FieldItem
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import kotlin.math.roundToInt
+import com.esri.arcgisruntime.geometry.SpatialReferences
+
+import com.esri.arcgisruntime.geometry.GeometryEngine
+import com.example.android.mapviewer.locationreminders.SaveReminderViewModel
+import org.koin.android.ext.android.inject
+
+
 //import com.esri.arcgisruntime.toolkit.popup.PopupViewModel
 
 
@@ -42,8 +55,11 @@ class MapFragment : Fragment(){//AppCompatActivity() {
     private lateinit var tabView:View
     private lateinit var viewPager: ViewPager2 // creating object of ViewPager
     private lateinit var tabLayout: TabLayout
+    private lateinit var behavior:BottomSheetBehavior<ConstraintLayout>
 
     private lateinit  var portalItem:PortalItem
+    private var lat:Double = 0.0
+    private var long:Double = 0.0
     private val selectedFeatures by lazy { ArrayList<Feature>() }
    // private val popupViewModel: PopupViewModel by viewModels()
    private lateinit var _fieldItemAdapter:FieldValueAdapter
@@ -51,6 +67,10 @@ class MapFragment : Fragment(){//AppCompatActivity() {
     private val activityMainBinding by lazy {
         FragmentMappageBinding.inflate(layoutInflater)
     }
+    /*private val _viewModel: SaveReminderViewModel by lazy {
+        ViewModelProvider(this).get(SaveReminderViewModel::class.java)
+    }*/
+    val _viewModel: SaveReminderViewModel by inject()
 
     private val mapView: MapView by lazy {
         viewOfLayoutresults.findViewById(R.id.mapView)
@@ -73,18 +93,16 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        //activityMainBinding.
-        // return inflater.inflate(R.layout.fragment_instruction, container, false)
-        //var bBinding : ViewDataBinding? = DataBindingUtil.inflate(inflater,R.layout.fragment_instruction,container,false)
 
-       //var bundle:Bundle? = getArguments()
-       //var portalItem:PortalItem = bundle.get(portalItem) as PortalItem
         if (container != null) {
             thiscontext = container.getContext()
         }
         viewOfLayoutresults = inflater.inflate(R.layout.fragment_mappage, container, false)
-        // mRecyclerView1 = viewOfLayoutresults.findViewById(R.id.recycler_view1)
-        //headerText = viewOfLayoutresults.findViewById(R.id.textView3)
+
+        val _bottomSheet = viewOfLayoutresults.findViewById<ConstraintLayout>(R.id.sheet_container)
+         behavior = BottomSheetBehavior.from(_bottomSheet)
+        // behavior.setPeekHeight(200)
+
 
 
         tabView = viewOfLayoutresults.findViewById<View>(R.id.identify)//.visibility = View.VISIBLE
@@ -93,21 +111,41 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         viewPager = viewOfLayoutresults.findViewById<ViewPager2>(R.id.pager)
 
 
+         val saveReminderBtn = viewOfLayoutresults.findViewById<FloatingActionButton>(R.id.saveReminder)
+         saveReminderBtn.setOnClickListener{
+             val popUpClass = ShowPopupWindow()
+
+             popUpClass.showPopupWindow(viewOfLayoutresults)
+           /* val title = _viewModel.reminderTitle.value
+            val description = _viewModel.reminderDescription.value
+            val location = _viewModel.reminderSelectedLocationStr.value
+            val latitude = _viewModel.latitude.value
+            val longitude = _viewModel.longitude.value
+            reminderData = ReminderDataItem(title, description, location, latitude, longitude)
+            if (!_viewModel.validateEnteredData(reminderData)) {
+                return@setOnClickListener
+            }
+            checkPermissionsAndStartGeofencing()*/
+        }
+
+
 
 
         var args = MapFragmentArgs.fromBundle(requireArguments())
        // val _itemId = getArguments()?.getString("itemId")
         val _itemId: String = args.myArg
+        val _title:String = args.mapTitle
         //portalItem = args.itemId
         setApiKeyForApp()
 
-        setupMap(_itemId)
+        setupMap(_itemId,_title)
         //viewOfLayout = inflater.inflate(R.layout.fieldvalue_row, container, false)
         return viewOfLayoutresults // activityMainBinding.root
 
     }
 
     fun setUpTabs(fldItems:MutableList<FieldItem>,title:String,_feature:Feature,featureType:String){
+        tabLayout.removeAllTabs()
        when(featureType.uppercase()){
            "POLYLINE" ->
            {
@@ -138,7 +176,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         })
     }
 
-    private fun setupMap(_itemId:String) {
+    private fun setupMap(_itemId:String,_title:String) {
 
         // create a map with the BasemapStyle streets
         //val map = ArcGISMap(BasemapStyle.ARCGIS_TOPOGRAPHIC)
@@ -150,8 +188,10 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         val portal = Portal(_portalUrl, false)
 
         val itemId = _itemId//"4ab2c027c1a14ca0b67ede51c7bcf606"
-        val portalItem = PortalItem(portal, itemId)
+         portalItem = PortalItem(portal, itemId)
         val map = ArcGISMap(portalItem)
+       // (activity as AppCompatActivity).setSupportActionBar(toolbar_name)
+        (activity as AppCompatActivity).supportActionBar?.title = _title
         mapView.apply {
             this.map = map
 
@@ -188,6 +228,26 @@ class MapFragment : Fragment(){//AppCompatActivity() {
 
         val identifyLayerResultsFuture = mapView
             .identifyLayersAsync(screenPoint, 12.0, false, 10)
+        // create a map point from screen point
+
+        val mapPoint: com.esri.arcgisruntime.geometry.Point? = mapView.screenToLocation(screenPoint)
+        // convert to WGS84 for lat/lon format
+
+        val wgs84Point:com.esri.arcgisruntime.geometry.Point =
+            GeometryEngine.project(mapPoint, SpatialReferences.getWgs84()) as com.esri.arcgisruntime.geometry.Point
+        // format output
+        lat = wgs84Point.y
+        long = wgs84Point.x
+        _viewModel.longitude.postValue(long)
+        _viewModel.latitude.postValue(lat)
+
+        Log.d(
+            TAG,
+            "Lat: " + java.lang.String.format(
+                "%.4f",
+                wgs84Point.y
+            ) + ", Lon: " + java.lang.String.format("%.4f", wgs84Point.x)
+        )
 
         identifyLayerResultsFuture.addDoneListener {
             try {
@@ -246,7 +306,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
                 //selectedFeatures.addAll(identifiedFeatures)
                 // featureLayer?.selectFeature(identifyLayerResult.popups.first().geoElement as Feature)
                 val _feature = identifyLayerResult.popups.first().geoElement as Feature
-
+                featureLayer?.clearSelection()
                 featureLayer?.selectFeature(_feature)
                 val fldItems = populateIdentifyProperties(
                     _feature,
@@ -257,7 +317,8 @@ class MapFragment : Fragment(){//AppCompatActivity() {
                 val _featureType = featureLayer?.featureTable?.geometryType//"Point"
 
                 setUpTabs(fldItems,_title,_feature,_featureType.toString())
-
+                (view?.height)?.div(2)?.let { behavior.setPeekHeight(it) }
+                behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED//STATE_EXPANDED
 
 
 

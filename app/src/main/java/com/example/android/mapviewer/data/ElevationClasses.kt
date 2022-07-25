@@ -1,8 +1,11 @@
 package com.example.android.mapviewer.data
 
+import android.os.Parcel
+import android.os.Parcelable
 import com.esri.arcgisruntime.geometry.Geometry
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import kotlinx.parcelize.Parcelize
 import org.json.JSONObject
 
 /*@JsonClass(generateAdapter = true)
@@ -154,7 +157,7 @@ data class Dataset(
 
     )*/
 
-
+@JsonClass(generateAdapter = true)
 data class FieldObj(
 
     val name:String,
@@ -210,7 +213,7 @@ data class ElevationRequestParam(
 
 )
 
-
+@JsonClass(generateAdapter = true)
 data class WkidObj(
 
     val wkid:Int,
@@ -262,18 +265,20 @@ data class SpatialReference1 (
     val wkid : Int? = null,
     val latestWkid : Int?
 )
-
+@JsonClass(generateAdapter = true)
 data class PathObj(
     val hasZ:Boolean,
     val hasM:Boolean,
     val paths:List<List<List<Double>>>
 )
+@JsonClass(generateAdapter = true)
 data class FeatureAttrib(
     val OBJECTID:Long,
     val DEMResolution: String,
     val ProfileLength: Double,
     val Shape_Length: Double
 )
+@JsonClass(generateAdapter = true)
 data class FeatureAttributes(
     val attributes:FeatureAttrib,
     val geometry:PathObj
@@ -292,7 +297,7 @@ data class FeaturesObj(
 
 
 
-
+@JsonClass(generateAdapter = true)
 data class Responsevalue(
 
     val displayFieldName:String?,
@@ -313,7 +318,7 @@ data class Responsevalue(
 )
 
 
-
+@JsonClass(generateAdapter = true)
 data class Dataset(
     val paramName:String,
     val dataType:String,
@@ -323,11 +328,11 @@ data class Dataset(
 
 
 
-
+@JsonClass(generateAdapter = true)
 data class ElevationResponse(
 
-    val results:List<Dataset>,
+    val results:Array<Dataset>,
 
-    val messages:List<String>?
+    val messages:Array<String>?
 
 )

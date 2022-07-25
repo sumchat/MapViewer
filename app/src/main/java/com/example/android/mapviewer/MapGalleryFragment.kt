@@ -42,7 +42,7 @@ class MapGalleryFragment : Fragment() {
 
     private fun adapterOnClick(portalItem: PortalItem) {
         itemId  = portalItem.itemId
-        val action = MapGalleryFragmentDirections.actionMapGalleryFragmentToMapFragment(itemId)
+        val action = MapGalleryFragmentDirections.actionMapGalleryFragmentToMapFragment(itemId,portalItem.title)
         findNavController().navigate(action)
 
         //findNavController().navigate(MapGalleryFragmentDirections.actionMapGalleryFragmentToMapFragment(itemId))
@@ -74,25 +74,7 @@ class MapGalleryFragment : Fragment() {
        // val mRecyclerView: RecyclerView = viewOfLayout.findViewById(R.id.recycler_view)
         search("Appstudio632")
 
-       // viewModel = sharedviewModel
 
-       // val _mapAdapter = PortalItemAdapter{ portalItem -> adapterOnClick(portalItem)}
-       // val recyclerView: RecyclerView = viewOfLayout.findViewById(R.id.recycler_view)//findViewById(R.id.recycler_view)
-       // recyclerView.adapter = _mapAdapter
-   /*     mapItemListViewModel.mapItemsLiveData.observe(viewLifecycleOwner, {
-            it?.let {
-                _mapAdapter.submitList(it as MutableList<MapItem>)
-                //headerAdapter.updateFlowerCount(it.size)
-            }
-        })
-        var shoeslist = mapItemListViewModel.mapsLiveData.value
-*/
-
-        // val minObject: Shoe? = shoeslist?.minByOrNull{ it.id }
-       // val maxObject: PortalItem? = mapItemslist?.maxByOrNull{ it.id }
-       // var maxId:Long = -1
-       // if(maxObject != null)
-       //     maxId = maxObject?.id
         setHasOptionsMenu(true)
 
 

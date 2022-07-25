@@ -5,7 +5,9 @@ plugins {
     id 'androidx.navigation.safeargs'
     id 'kotlin-parcelize'
 
+
 }
+
 
 android {
     compileSdk 31
@@ -78,5 +80,19 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-scalars:$version_retrofit"
     implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:$version_retrofit_coroutines_adapter"
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+   // implementation 'com.google.code.gson:gson:2.8.8'
+    //implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    //Room dependencies
+    implementation "androidx.room:room-ktx:$roomVersion"
+    implementation "androidx.room:room-runtime:$roomVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
+
+    implementation 'com.google.android.gms:play-services-location:20.0.0'
+    //Koin
+    implementation "org.koin:koin-android:$koinVersion"
+    implementation "org.koin:koin-androidx-viewmodel:$koinVersion"
+    //Coroutines Dependencies
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+
 
 }
