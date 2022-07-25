@@ -21,6 +21,8 @@
         tools:layout="@layout/fragment_mappage" >
         <argument android:name="myArg"
             app:argType="string" />
+        <argument android:name="mapTitle"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/mapGalleryFragment"
@@ -36,6 +38,12 @@
 
 
             />
+            <argument
+                android:name="mapTitle"
+                app:argType= "string"
+
+
+                />
             </action>
     </fragment>
 </navigation>

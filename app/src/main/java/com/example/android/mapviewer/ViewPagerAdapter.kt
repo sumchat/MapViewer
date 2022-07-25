@@ -1,15 +1,15 @@
+import android.content.Context
 import androidx.fragment.app.Fragment
-import android.os.Bundle
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.android.mapviewer.MapFragment
 
 //class ViewPagerAdapter(supportFragmentManager: FragmentManager) :
 //    FragmentStatePagerAdapter(supportFragmentManager) {
 private const val ARG_OBJECT = "object"
 
-class ViewPagerAdapter(fragmentManager: FragmentManager,lifecycle: Lifecycle):FragmentStateAdapter(fragmentManager,lifecycle){
+class ViewPagerAdapter(fragmentActivity: FragmentActivity, total:Int):FragmentStateAdapter(fragmentActivity){
     // declare arrayList to contain fragments and its title
     private val mFragmentList = ArrayList<Fragment>()
     private val mFragmentTitleList = ArrayList<String>()
