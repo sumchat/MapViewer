@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -32,6 +33,7 @@ class MapGalleryFragment : Fragment() {
     //private lateinit var viewModel:GalleryViewModel
     private lateinit var viewOfLayout: View
     public lateinit var itemId:String
+    private var progressBar: ProgressBar? = null
 
     val portal: Portal = Portal("https://www.arcgis.com", false)
     private var mPortalQueryResultSet: PortalQueryResultSet<PortalItem>? = null
@@ -72,6 +74,9 @@ class MapGalleryFragment : Fragment() {
         }
         viewOfLayout = inflater.inflate(R.layout.fragment_map_gallery, container, false)
        // val mRecyclerView: RecyclerView = viewOfLayout.findViewById(R.id.recycler_view)
+        // finding progressbar by its id
+        progressBar = viewOfLayout.findViewById<ProgressBar>(R.id.progressBar) as ProgressBar
+        progressBar!!.visibility = View.VISIBLE
         search("Appstudio632")
 
 
@@ -98,6 +103,7 @@ class MapGalleryFragment : Fragment() {
                 // hide search instructions
                 //mSearchInstructionsTextView.setVisibility(View.GONE)
                 // update the results list view with matching items
+                progressBar!!.visibility = View.INVISIBLE
                 mPortalQueryResultSet = results.get()
                 // left?.let { queue.add(it) }
                 mPortalItemList = mPortalQueryResultSet?.let{it.getResults()} as List<PortalItem>

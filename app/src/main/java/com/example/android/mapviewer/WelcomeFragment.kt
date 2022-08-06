@@ -52,8 +52,10 @@ class WelcomeFragment : Fragment() {
         // binding..setOnClickListener {v: View -> v.findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToWelcomeFragment())}
        //  binding.welcomebutton.setOnClickListener({v:View -> v.findNavController().navigate(WelcomeFragmentDirections.actionWelcomeFragmentToMapFragment())})
         binding.welcomebutton.setOnClickListener({v:View -> v.findNavController().navigate(WelcomeFragmentDirections.actionWelcomeFragmentToMapGalleryFragment())})
-
-
+        val _motionLayout = binding.myMotionLayout
+       // _motionLayout.transitionToStart()
+       // _motionLayout.transitionToEnd()
+        //view.findViewById(R.id.your_motion_layout)
         //return inflater.inflate(R.layout.fragment_welcome, container, false)
         return binding.root
     }

@@ -11,8 +11,6 @@ import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.LocationServices
 import com.example.android.mapviewer.R
 import com.example.android.mapviewer.databinding.ActivityReminderDescriptionBinding
-import com.example.android.mapviewer.locationreminders.ReminderDataItem
-import com.example.android.mapviewer.locationreminders.SaveReminderViewModel
 import org.koin.android.ext.android.inject
 
 /**
@@ -58,7 +56,7 @@ class ReminderDescriptionActivity : AppCompatActivity() {
                     getString(R.string.geofence_removed),
                     Toast.LENGTH_SHORT
                 ).show()
-                _viewModel.deleteReminder(geofenceId)
+                //_viewModel.deleteReminder(geofenceId)
 
             }
             addOnFailureListener { ////in case of failure

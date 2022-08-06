@@ -3,12 +3,12 @@ package com.example.android.mapviewer.geofence
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.JobIntentService
+import com.example.android.mapviewer.locationreminders.ReminderDataItem
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import com.example.android.mapviewer.locationreminders.data.ReminderDataSource
 import com.example.android.mapviewer.locationreminders.data.ReminderDTO
 import com.example.android.mapviewer.locationreminders.data.Result
-import com.example.android.mapviewer.locationreminders.ReminderDataItem
 import com.example.android.mapviewer.utils.sendNotification
 import kotlinx.coroutines.*
 import org.koin.android.ext.android.inject

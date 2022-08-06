@@ -3,6 +3,9 @@ package com.example.android.mapviewer.utils
 import android.view.View
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
+import androidx.recyclerview.widget.RecyclerView
+import com.example.android.mapviewer.locationreminders.BaseRecyclerViewAdapter
+
 //import androidx.recyclerview.widget.RecyclerView
 //import com.example.android.mapviewer.base.BaseRecyclerViewAdapter
 
@@ -12,7 +15,7 @@ object BindingAdapters {
     /**
      * Use binding adapter to set the recycler view data using livedata object
      */
-  /* @Suppress("UNCHECKED_CAST")
+   @Suppress("UNCHECKED_CAST")
     @BindingAdapter("android:liveData")
     @JvmStatic
     fun <T> setRecyclerViewData(recyclerView: RecyclerView, items: LiveData<List<T>>?) {
@@ -22,7 +25,7 @@ object BindingAdapters {
                 addData(itemList)
             }
         }
-    }*/
+    }
 
     /**
      * Use this binding adapter to show and hide the views using boolean variables

@@ -7,6 +7,7 @@ import com.example.android.mapviewer.R
 import com.example.android.mapviewer.locationreminders.data.ReminderDTO
 import com.example.android.mapviewer.locationreminders.data.ReminderDataSource
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSource) :
     BaseViewModel(app) {
@@ -16,6 +17,8 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     //val selectedPOI = MutableLiveData<PointOfInterest>()
     var latitude = MutableLiveData<Double?>()
     var longitude = MutableLiveData<Double?>()
+
+
 
     /**
      * Clear the live data objects to start fresh next time the view model gets called
@@ -60,12 +63,23 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         }
     }
 
-    fun deleteReminder(id:String)
+   /* fun deleteReminder(id:String)
     {
+
         viewModelScope.launch {
-            dataSource.deleteReminder(id)
+
+
+           /* val reminder = dataSource.getReminder(id)///dataSource.deleteReminder(id)
+            val result = dataSource.deleteReminder(reminder)
+            when (result) {
+                true -> {
+                    showSnackBar.value = "reminder deleted"
+                }
+                false ->
+                    showSnackBar.value = "cannot be deleted"
+            }*/
         }
-    }
+    }*/
 
     /**
      * Validate the entered data and show error to the user if there's any invalid data

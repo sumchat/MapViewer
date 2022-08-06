@@ -5,6 +5,7 @@ import com.example.android.mapviewer.locationreminders.SaveReminderViewModel
 import com.example.android.mapviewer.locationreminders.data.LocalDB
 import com.example.android.mapviewer.locationreminders.data.ReminderDataSource
 import com.example.android.mapviewer.locationreminders.data.RemindersLocalRepository
+import com.example.android.mapviewer.reminderslist.RemindersListViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
@@ -19,7 +20,7 @@ class MyApp: Application() {
          */
         val myModule = module {
             //Declare a ViewModel - be later inject into Fragment with dedicated injector using by viewModel()
-           /* viewModel {
+            /*viewModel {
                 RemindersListViewModel(
                     get(),
                     get() as ReminderDataSource
@@ -29,6 +30,15 @@ class MyApp: Application() {
             single {
                 //This view model is declared singleton to be used across multiple fragments
                 SaveReminderViewModel(
+                    get(),
+                    get() as ReminderDataSource
+                )
+
+            }
+            single {
+                //This view model is declared singleton to be used across multiple fragments
+
+                RemindersListViewModel(
                     get(),
                     get() as ReminderDataSource
                 )

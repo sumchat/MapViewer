@@ -1,9 +1,6 @@
 package com.example.android.mapviewer.locationreminders.data
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 
 /**
  * Data Access Object for the reminders table.
@@ -38,6 +35,7 @@ interface RemindersDao {
      fun deleteAllReminders()
 
     @Query("Delete from reminders where entry_id = :reminderId")
-     fun deleteReminder(reminderId:String)
+     fun deleteReminder(reminderId:String);
+
 
 }

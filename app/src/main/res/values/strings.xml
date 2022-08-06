@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">MapViewer</string>
     <string name="maptitle">"Location of Shoe stores  "</string>
+    <string name="no_data">No Data</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="welcometitle">MAPVIEWER</string>
@@ -27,4 +28,9 @@
         Unknown error: the Geofence service is not available now
     </string>
     <string name="geofences_not_added">Problem in adding geofences.</string>
+    <string name="reminders">Reminders</string>
+    <string name="map">Map</string>
+    <string name="viewer">Viewer</string>
+    <string name="start">Start</string>
+    <string name="delete">Delete</string>
 </resources>

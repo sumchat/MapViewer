@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.android.mapviewer.locationreminders.BaseRecyclerViewAdapter
 //import com.example.android.mapviewer.base.BaseRecyclerViewAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -23,14 +24,14 @@ import java.net.URL
 /**
  * Extension function to setup the RecyclerView
  */
-/*fun <T> RecyclerView.setup(
+fun <T> RecyclerView.setup(
     adapter: BaseRecyclerViewAdapter<T>
 ) {
     this.apply {
         layoutManager = LinearLayoutManager(this.context)
         this.adapter = adapter
     }
-}*/
+}
 
 fun Fragment.setTitle(title: String) {
     if (activity is AppCompatActivity) {

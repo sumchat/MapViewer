@@ -10,10 +10,9 @@ import androidx.core.app.TaskStackBuilder
 //import androidx.databinding.ktx.BuildConfig
 //import  com.example.android.mapviewer.BuildConfig
 import  com.example.android.mapviewer.R
-import  com.example.android.mapviewer.locationreminders.ReminderDescriptionActivity
 import com.example.android.mapviewer.locationreminders.ReminderDataItem
+import  com.example.android.mapviewer.locationreminders.ReminderDescriptionActivity
 import org.koin.android.BuildConfig
-import org.koin.android.BuildConfig.APPLICATION_ID
 
 private const val NOTIFICATION_CHANNEL_ID = BuildConfig.APPLICATION_ID + ".channel"
 
