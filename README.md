@@ -40,5 +40,7 @@ click on any feature on the map. The feature should get selected. The recyclervi
 ![image](https://user-images.githubusercontent.com/6456871/179329777-2884cb3c-fa36-4029-8166-a013feb09d21.png)
 ![image](https://user-images.githubusercontent.com/6456871/179329793-4fc9acaa-39c2-4874-811f-4069589ee3e9.png)
 
+![Screenshot 2022-08-07 113916](https://user-images.githubusercontent.com/6456871/183306113-8292719c-35d9-4797-9d55-ef338dac742b.png)
+![Screenshot 2022-08-07 113947](https://user-images.githubusercontent.com/6456871/183306121-f63b306a-5569-4aca-a580-17ab3ffde0a7.png)
 
 
