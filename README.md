@@ -32,6 +32,7 @@ Choose a map e.g. the Tahoe one by clicking on the title
 
 click on any feature on the map. The feature should get selected. The recyclerview should also get populated. But the issue is it is not
 
+![Screenshot 2022-08-07 114326](https://user-images.githubusercontent.com/6456871/183306276-54dc4941-0895-44ef-92ee-8328f25e407c.png)
 
 
 ![image](https://user-images.githubusercontent.com/6456871/179329758-5f57c1ef-ca34-4dcc-b560-bb6aaaa3600e.png)
