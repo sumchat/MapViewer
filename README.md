@@ -2,6 +2,13 @@
 
 https://user-images.githubusercontent.com/6456871/183304440-c63ee331-31c4-4dae-a397-0961f0bfba39.mp4
 
+* This application is used to display a list of maps that are created and stored in ArcGIS Online.
+* User can choose on a map in the map Gallery and will display the map in detail.
+* The map will show line, point and polygon features. 
+* Any featutre can be identified by selecting it. But for line it will also draw a profile by querying the elevation values using REST API call.
+* Then there is a option to add a geofence reminder at any feature. Once added it is stored in a local database and a buffer of 1 mile is drawn around the point 
+* You can also delete a reminder from the list.
+
 ![image](https://user-images.githubusercontent.com/6456871/178089737-a06dd12f-01d4-42c2-ba1e-8a229d749e1b.png)
 
 Click Next
