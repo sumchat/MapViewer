@@ -49,14 +49,9 @@ class WelcomeFragment : Fragment() {
         // Inflate the layout for this fragment
 
        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_welcome,container,false)
-        // binding..setOnClickListener {v: View -> v.findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToWelcomeFragment())}
-       //  binding.welcomebutton.setOnClickListener({v:View -> v.findNavController().navigate(WelcomeFragmentDirections.actionWelcomeFragmentToMapFragment())})
-        binding.welcomebutton.setOnClickListener({v:View -> v.findNavController().navigate(WelcomeFragmentDirections.actionWelcomeFragmentToMapGalleryFragment())})
+       binding.welcomebutton.setOnClickListener({v:View -> v.findNavController().navigate(WelcomeFragmentDirections.actionWelcomeFragmentToMapGalleryFragment())})
         val _motionLayout = binding.myMotionLayout
-       // _motionLayout.transitionToStart()
-       // _motionLayout.transitionToEnd()
-        //view.findViewById(R.id.your_motion_layout)
-        //return inflater.inflate(R.layout.fragment_welcome, container, false)
+
         return binding.root
     }
 
@@ -72,9 +67,7 @@ class WelcomeFragment : Fragment() {
       val _view =  mActivity?.findViewById<View>(R.id.navView1)
        // val navigationView: NavigationView = mActivity?.findViewById(R.id.navView)//mainActivity.findViewById(R.id.navView)
         val navController = NavHostFragment.findNavController(this)
-       // val appBarConfiguration = mainActivity.appBarConfiguration
-       // NavigationUI.setupActionBarWithNavController(mainActivity,navController,appBarConfiguration)
-       // NavigationUI.setupWithNavController(navigationView,navController)
+
 
     }
 

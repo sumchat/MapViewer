@@ -437,19 +437,7 @@ public class ShowPopupWindow : DialogFragment() {
             getContext()?.let { checkDeviceLocationSettingsAndStartGeofence(it) }
         }
     }
-   /* private val requestPermissionsResultLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
-    {
-            permissionsStatusMap ->
-        if (!permissionsStatusMap.containsValue(false)) {
-            // all permissions are accepted
-            Log.i("DEBUG", "all permissions are accepted")
-            checkDeviceLocationSettingsAndStartGeofence(_context)
-        } else {
-           Log.i("DEBUG", "all permissions are not accepted")
-        }
 
-
-    }*/
     private val requestPermissionsResultLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission())
     {
             isGranted ->
@@ -491,17 +479,7 @@ public class ShowPopupWindow : DialogFragment() {
             }
             checkPermissionsAndStartGeofencing(_context)
         }
-        //Initialize the elements of our window, install the handler
-        /* val test2: TextView = popupView.findViewById(R.id.titleText)
-         test2.setText(R.string.textTitle)
-         val buttonEdit: Button = popupView.findViewById(R.id.messageButton)
-         buttonEdit.setOnClickListener(object : OnClickListener() {
-             fun onClick(v: View?) {
-                 //As an example, display the message
-                 //Toast.makeText(view.getContext(), "Wow, popup action button", Toast.LENGTH_SHORT)
-                 //    .show()
-             }
-         })*/
+
     }
 
     override fun onStart() {
@@ -522,29 +500,7 @@ public class ShowPopupWindow : DialogFragment() {
             requestForegroundAndBackgroundLocationPermissions()
         }
     }
-    /*
-   *  Determines whether the app has the appropriate permissions across Android 10+ and all other
-   *  Android versions.
-   */
-  /*  @TargetApi(29)
-    private fun foregroundAndBackgroundLocationPermissionApproved(context: Context): Boolean {
-        val foregroundLocationApproved = (
-                PackageManager.PERMISSION_GRANTED ==
-                        ActivityCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        ))
-        val backgroundPermissionApproved =
-            if (runningQOrLater) {
-                PackageManager.PERMISSION_GRANTED ==
-                        ActivityCompat.checkSelfPermission(
-                            context, Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                        )
-            } else {
-                true
-            }
-        return foregroundLocationApproved && backgroundPermissionApproved
-    }*/
+
     /*
  *  Determines whether the app has the appropriate permissions across Android 10+ and all other
  *  Android versions.
@@ -698,15 +654,7 @@ public class ShowPopupWindow : DialogFragment() {
             return
         // Else request the permission
         // this provides the result[LOCATION_PERMISSION_INDEX]
-        /* var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-         val resultCode = when {
-             runningQOrLater -> {
-                 // this provides the result[BACKGROUND_LOCATION_PERMISSION_INDEX]
-                 permissionsArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                 REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE
-             }
-             else -> REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
-         }*/
+
         //if forgroundlocationpermission is approved check for backgroundlocation
        if( PackageManager.PERMISSION_GRANTED ==
                 ActivityCompat.checkSelfPermission(_context,

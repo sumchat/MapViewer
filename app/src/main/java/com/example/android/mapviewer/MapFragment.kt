@@ -64,10 +64,7 @@ import com.example.android.mapviewer.locationreminders.ReminderObject
 import com.example.android.mapviewer.locationreminders.data.ReminderDataSource
 
 
-//import com.esri.arcgisruntime.toolkit.popup.PopupViewModel
-
-
-class MapFragment : Fragment(){//AppCompatActivity() {
+class MapFragment : Fragment(){
     lateinit var thiscontext: Context
     lateinit var _inflater:LayoutInflater
     private var parentLinearLayout: ConstraintLayout? = null
@@ -91,12 +88,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
     val _remindersviewModel: RemindersListViewModel  by inject()
     val remindersLocalRepository by inject<ReminderDataSource>()
 
-   /* private val activityMainBinding by lazy {
-        FragmentMappageBinding.inflate(layoutInflater)
-    }*/
-    /*private val _viewModel: SaveReminderViewModel by lazy {
-        ViewModelProvider(this).get(SaveReminderViewModel::class.java)
-    }*/
+
     val _viewModel: SaveReminderViewModel by inject()
 
     public val mapView: MapView by lazy {
@@ -111,21 +103,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         }
     }
 
-   /* private val requestPermissionsResultLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
-    {
-            permissionsStatusMap ->
-        if (!permissionsStatusMap.containsValue(false)) {
-            // all permissions are accepted
-            Log.i("DEBUG", "all permissions are accepted")
-            showPopupForReminder()
-            //checkDeviceLocationSettingsAndStartGeofence(_context)
-        } else {
 
-            Log.i("DEBUG", "all permissions are not accepted")
-        }
-
-
-    }*/
    private val requestPermissionsResultLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission())
    {
            isGranted ->
@@ -137,21 +115,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
            Log.i("DEBUG", "permission denied")
        }
    }
-  /* @RequiresApi(Build.VERSION_CODES.N)
-   val requestPermissionsResultLauncher = registerForActivityResult(
-       ActivityResultContracts.RequestMultiplePermissions()
-   ) { permissions ->
-       when {
-           permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-               // Precise location access granted.
-           }
-           permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-               // Only approximate location access granted.
-           } else -> {
-           // No location access granted.
-       }
-       }
-   }*/
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -409,8 +373,6 @@ class MapFragment : Fragment(){//AppCompatActivity() {
                 }
             }
             val _projGeom = GeometryEngine.project(pointGeometry, getWebMercator())
-
-
             // set viewpoint of map view to starting point and scale
             mapView.setViewpointCenterAsync(_projGeom as Point?, mapView.mapScale)
         }
@@ -429,6 +391,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
                     if (geofenceId != null) {
                         try {
                             _remindersviewModel.deleteReminder(geofenceId)
+
                         }
                         catch(ex:java.lang.Exception)
                         {
@@ -461,41 +424,8 @@ class MapFragment : Fragment(){//AppCompatActivity() {
  *  Android versions.
  */
     @TargetApi(29)
-   // private fun foregroundAndBackgroundLocationPermissionApproved(context: Context): Boolean {
+
         private fun foregroundLocationPermissionApproved(context: Context): Boolean {
-        val foregroundLocationApproved = (
-                PackageManager.PERMISSION_GRANTED ==
-                        ActivityCompat.checkSelfPermission(context,
-                            Manifest.permission.ACCESS_FINE_LOCATION))
-       /* val backgroundPermissionApproved =
-            if (runningQOrLater) {
-                PackageManager.PERMISSION_GRANTED ==
-                        ActivityCompat.checkSelfPermission(
-                            context, Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                        )
-            } else {
-                true
-            }*/
-        return foregroundLocationApproved //&& backgroundPermissionApproved
-    }
-
-   /* @TargetApi(29)
-    private fun backgroundLocationPermissionApproved(context: Context): Boolean {
-
-        val backgroundPermissionApproved =
-            if (runningQOrLater) {
-                PackageManager.PERMISSION_GRANTED ==
-                        ActivityCompat.checkSelfPermission(
-                            context, Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                        )
-            } else {
-                true
-            }
-        return  backgroundPermissionApproved
-    }
-
-    @TargetApi(29)
-    private fun foregroundLocationPermissionApproved(context: Context): Boolean {
         val foregroundLocationApproved = (
                 PackageManager.PERMISSION_GRANTED ==
                         ActivityCompat.checkSelfPermission(context,
@@ -503,29 +433,6 @@ class MapFragment : Fragment(){//AppCompatActivity() {
 
         return foregroundLocationApproved
     }
-    private fun checkBackgroundLocation() {
-        if (ActivityCompat.checkSelfPermission(
-                thiscontext,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestBackgroundLocationPermission()
-        }
-    }
-    private fun requestBackgroundLocationPermission() {
-        if (runningQOrLater) {
-            requestPermissionsResultLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-           /* ActivityCompat.requestPermissions(
-                thiscontext,
-                arrayOf(
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ),
-                MY_PERMISSIONS_REQUEST_BACKGROUND_LOCATION
-            )*/
-        } else {
-            requestPermissionsResultLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-    }*/
 
 
 
@@ -585,34 +492,6 @@ class MapFragment : Fragment(){//AppCompatActivity() {
 
     }
 
-    /*
-*  Requests ACCESS_FINE_LOCATION and (on Android 10+ (Q) ACCESS_BACKGROUND_LOCATION.
-*/
-     /* @TargetApi(29 )
-      private fun requestForegroundAndBackgroundLocationPermissions(context:Context) {
-          if (foregroundAndBackgroundLocationPermissionApproved(context))
-              return
-
-          // Else request the permission
-          // this provides the result[LOCATION_PERMISSION_INDEX]
-          var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-
-          val resultCode = when {
-              runningQOrLater -> {
-                  // this provides the result[BACKGROUND_LOCATION_PERMISSION_INDEX]
-                  permissionsArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                  REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE
-              }
-              else -> REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
-          }
-
-          Log.d("Permission", "Request foreground only location permission")
-          ActivityCompat.requestPermissions(
-              requireActivity(),
-              permissionsArray,
-              resultCode
-          )
-      }*/
 
     /*
     *  Requests ACCESS_FINE_LOCATION and (on Android 10+ (Q) ACCESS_BACKGROUND_LOCATION.
@@ -621,20 +500,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
     private fun requestForegroundLocationPermissions() {
         if (foregroundLocationPermissionApproved(thiscontext))
             return
-        // Else request the permission
-        // this provides the result[LOCATION_PERMISSION_INDEX]
 
-
-
-        /* var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-         val resultCode = when {
-             runningQOrLater -> {
-                 // this provides the result[BACKGROUND_LOCATION_PERMISSION_INDEX]
-                 permissionsArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                 REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE
-             }
-             else -> REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
-         }*/
         if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
             Toast.makeText(
                 thiscontext,
@@ -643,26 +509,13 @@ class MapFragment : Fragment(){//AppCompatActivity() {
                 .show()
         } else {
             try {
-              /*  requestPermissionsResultLauncher.launch(arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION))*/
-             //  if(!backgroundLocationPermissionApproved(thiscontext))
-              //  requestPermissionsResultLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-              // else if(!foregroundLocationPermissionApproved(thiscontext))
                    requestPermissionsResultLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-               // requestPermissionsResultLauncher.launch(permissionsArray)
-                   /* arrayOf(
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                    )*/
-                //)
             }
             catch(ex: java.lang.Exception)
             {
                 Log.d("Permission",ex.message.toString())
             }
 
-            //requestPermissionsResultLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
         Log.d("Permission", "Request foreground and background only location permission")
 
@@ -740,18 +593,6 @@ class MapFragment : Fragment(){//AppCompatActivity() {
             }
 
         }
-        // add graphics overlays
-       /* mapView.graphicsOverlays.addAll(
-            arrayOf(
-                renderedPointGraphicsOverlay()
-            ))*/
-
-        //mapView.map = map
-
-        // set the viewpoint, Viewpoint(latitude, longitude, scale)
-        //  mapView.setViewpoint(Viewpoint(34.0270, -118.8050, 72000.0))
-
-
 
     }
 
@@ -857,12 +698,6 @@ class MapFragment : Fragment(){//AppCompatActivity() {
                 (view?.height)?.div(2)?.let { behavior.setPeekHeight(it) }
                 behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED//STATE_EXPANDED
 
-
-
-                // add the features to the current feature layer selection
-                // featureLayer?.selectFeatures(identifiedFeatures)
-                // message.append(layerName).append(": ").append(count)
-
                 // add new line character if not the final element in array
                 if (identifyLayerResult != identifyLayerResults[identifyLayerResults.size - 1]) {
                     message.append("\n")
@@ -937,34 +772,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         super.onDestroy()
     }
 
-   /* override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        //setContentView(R.layout.fragment_mappage)
-        var container = findViewById(R.id.container) as LinearLayout
-        var params = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        //params.setMargins(layout_marginTop(10), dpTopx(10), dpTopx(10), dpTopx(10))
-        params.setMargins(10,10,10,10)
-        container.setLayoutParams(params)
-        container.setOrientation(LinearLayout.VERTICAL)
-       // container.addView(l);
-        //var mainTabFragment : Fragment? = null
-       // mainTabFragment = MainTabFragment.newInstance()
-       // container.addView(mainTabFragment.view)
-    }*/
 
-    /*private fun setUpToolbar() {
-
-        val mainActivity = mActivity as MainActivity
-        val navigationView: NavigationView = mActivity.findViewById(R.id.navView)
-        val navController = NavHostFragment.findNavController(this)
-        val appBarConfiguration = mainActivity.appBarConfiguration
-        NavigationUI.setupActionBarWithNavController(mainActivity,navController,appBarConfiguration)
-        NavigationUI.setupWithNavController(navigationView,navController)
-
-    }*/
     private companion object {
         private val TAG: String = "MapFragment"
     }

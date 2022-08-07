@@ -54,11 +54,6 @@ class ProfileFragment(private val mFeature:Feature) : Fragment() {
     }
 
 
-    /*override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }*/
-
     fun setUpChart(container:ViewGroup?){
         chart.setOnChartValueSelectedListener(object:
             OnChartValueSelectedListener {
@@ -84,20 +79,7 @@ class ProfileFragment(private val mFeature:Feature) : Fragment() {
         chart.setPinchZoom(true)
 
     }
-    /*
 
-
-
-class MyMarker(context: Context) : MarkerView(context, R.layout.my_marker) {
-
-override fun refreshContent(entry: Entry, highlight: Highlight) {
- super.refreshContent(entry, highlight)
- dateView.text = formatDate(entry.x.toLong())
- valueView.text = formatCurrency(entry.y.toLong())
-}
-}
-chartView.marker = MyMarker(context)
-     */
     fun showLabels()
     {
         val xAxisName = TextView(activity)
@@ -151,7 +133,7 @@ chartView.marker = MyMarker(context)
     fun processChartData(chartData: ElevationResponseClass)
     {
       val _paths =
-          chartData.results?.get(0)?.value?.features?.get(0)?.geometry?.paths//chartData.results?.get(0)?.value.features[0].geometry.paths
+          chartData.results?.get(0)?.value?.features?.get(0)?.geometry?.paths
       val entries = mutableListOf<Entry>()
         try {
             for (i in 0.._paths!!.size - 1) {

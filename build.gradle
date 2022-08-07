@@ -14,6 +14,7 @@ buildscript {
         playServicesVersion = '17.0.0'
         koinVersion = '2.0.1'
         coroutinesVersion = '1.2.1'
+        version_glide = "4.8.0"
     }
     repositories {
         google()

@@ -61,18 +61,50 @@ class RemindersListViewModel(
         }
     }
 
+    suspend fun refreshReminders()
+    {
+       var result = dataSource.getReminders()
+
+        showLoading.postValue(false)
+        when (result) {
+            is Result.Success<*> -> {
+                val dataList = ArrayList<ReminderDataItem>()
+                dataList.addAll((result.data as List<ReminderDTO>).map { reminder ->
+                    //map the reminder data from the DB to the be ready to be displayed on the UI
+                    ReminderDataItem(
+                        reminder.title,
+                        reminder.description,
+
+                        reminder.latitude,
+                        reminder.longitude,
+                        reminder.id
+                    )
+                })
+                remindersList.postValue(dataList)
+
+
+            }
+            is Result.Error ->
+                showSnackBar.postValue(result.message)
+        }
+    }
+
+
     fun deleteReminder(reminderId:String)
     {
         viewModelScope.launch(Dispatchers.IO) {
+
            val result = dataSource.deleteReminder(reminderId)
             when (result) {
                  true -> {
-                     //loadReminders()
-                  showSnackBar.value = "reminder deleted"
+                    refreshReminders()
+                  showSnackBar.postValue("reminder deleted")
+
                 }
                 false ->
-                    showSnackBar.value = "cannot be deleted"
+                    showSnackBar.postValue( "cannot be deleted")
             }
+
         }
     }
 

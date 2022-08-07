@@ -34,6 +34,7 @@ class RemindersListAdapter(
 
     }
 
+
     fun zoomtoLocation(item:ReminderDataItem)
     {
         callBack?.invoke(item,"zoom")
