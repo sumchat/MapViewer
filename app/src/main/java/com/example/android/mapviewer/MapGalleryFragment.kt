@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -15,6 +16,7 @@ import com.esri.arcgisruntime.portal.Portal
 import com.esri.arcgisruntime.portal.PortalItem
 import com.esri.arcgisruntime.portal.PortalQueryParameters
 import com.esri.arcgisruntime.portal.PortalQueryResultSet
+import com.example.android.mapviewer.data.MapItem
 import java.lang.Exception
 import com.example.android.mapviewer.MapGalleryFragmentDirections as MapGalleryFragmentDirections
 
@@ -32,17 +34,19 @@ class MapGalleryFragment : Fragment() {
     //private lateinit var viewModel:GalleryViewModel
     private lateinit var viewOfLayout: View
     public lateinit var itemId:String
+    private var progressBar: ProgressBar? = null
 
     val portal: Portal = Portal("https://www.arcgis.com", false)
     private var mPortalQueryResultSet: PortalQueryResultSet<PortalItem>? = null
     private lateinit var mPortalItemList:List<PortalItem>
+    private  var mMapItems:List<MapItem> = emptyList()
    // private val mRecyclerView: RecyclerView? = null
     private lateinit var _portalItemAdapter:PortalItemAdapter
 
 
-    private fun adapterOnClick(portalItem: PortalItem) {
-        itemId  = portalItem.itemId
-        val action = MapGalleryFragmentDirections.actionMapGalleryFragmentToMapFragment(itemId)
+    private fun adapterOnClick(mapItem: MapItem) {
+        itemId  = mapItem.id
+        val action = MapGalleryFragmentDirections.actionMapGalleryFragmentToMapFragment(itemId,mapItem.name)
         findNavController().navigate(action)
 
         //findNavController().navigate(MapGalleryFragmentDirections.actionMapGalleryFragmentToMapFragment(itemId))
@@ -72,27 +76,12 @@ class MapGalleryFragment : Fragment() {
         }
         viewOfLayout = inflater.inflate(R.layout.fragment_map_gallery, container, false)
        // val mRecyclerView: RecyclerView = viewOfLayout.findViewById(R.id.recycler_view)
+        // finding progressbar by its id
+        progressBar = viewOfLayout.findViewById<ProgressBar>(R.id.progressBar) as ProgressBar
+        progressBar!!.visibility = View.VISIBLE
         search("Appstudio632")
 
-       // viewModel = sharedviewModel
 
-       // val _mapAdapter = PortalItemAdapter{ portalItem -> adapterOnClick(portalItem)}
-       // val recyclerView: RecyclerView = viewOfLayout.findViewById(R.id.recycler_view)//findViewById(R.id.recycler_view)
-       // recyclerView.adapter = _mapAdapter
-   /*     mapItemListViewModel.mapItemsLiveData.observe(viewLifecycleOwner, {
-            it?.let {
-                _mapAdapter.submitList(it as MutableList<MapItem>)
-                //headerAdapter.updateFlowerCount(it.size)
-            }
-        })
-        var shoeslist = mapItemListViewModel.mapsLiveData.value
-*/
-
-        // val minObject: Shoe? = shoeslist?.minByOrNull{ it.id }
-       // val maxObject: PortalItem? = mapItemslist?.maxByOrNull{ it.id }
-       // var maxId:Long = -1
-       // if(maxObject != null)
-       //     maxId = maxObject?.id
         setHasOptionsMenu(true)
 
 
@@ -106,6 +95,7 @@ class MapGalleryFragment : Fragment() {
         // create query parameters specifying the type webmap
         val mRecyclerView: RecyclerView = viewOfLayout.findViewById(R.id.recycler_view)
         val params = PortalQueryParameters()
+        val portalUrl =PortalSearch.getPortalUrl()
         params.setQuery(PortalItem.Type.WEBMAP, "", keyword)
         // find matching portal items. This search may field a large number of results (limited to 10 be default). Set the
         // results limit field on the query parameters to change the default amount.
@@ -116,15 +106,25 @@ class MapGalleryFragment : Fragment() {
                 // hide search instructions
                 //mSearchInstructionsTextView.setVisibility(View.GONE)
                 // update the results list view with matching items
+                progressBar!!.visibility = View.INVISIBLE
                 mPortalQueryResultSet = results.get()
                 // left?.let { queue.add(it) }
                 mPortalItemList = mPortalQueryResultSet?.let{it.getResults()} as List<PortalItem>
-                _portalItemAdapter = PortalItemAdapter ( mPortalItemList, {portalItem ->
+
+                mMapItems = mPortalItemList.map {
+
+                    MapItem(it.itemId,it.title,it.owner,it.created,it.size,portalUrl.plus("/sharing/rest/content/items/").plus(it.itemId).plus("/info/thumbnail/ago_downloaded.png"))
+                }
+
+
+               /* _portalItemAdapter = PortalItemAdapter ( mPortalItemList, {portalItem ->
                     adapterOnClick(portalItem)}
+                )*/
+
+                _portalItemAdapter = PortalItemAdapter ( mMapItems, {mapItem ->
+                    adapterOnClick(mapItem)}
                 )
-                /*{
-                    //portalItem -> addMap(portal, portalItem.getItemId())
-            }*/
+
 
                 if (mRecyclerView != null) {
                     mRecyclerView.adapter = _portalItemAdapter

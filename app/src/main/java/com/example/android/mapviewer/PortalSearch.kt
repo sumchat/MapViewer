@@ -19,12 +19,7 @@ import com.esri.arcgisruntime.portal.PortalQueryParameters
 import java.lang.Exception
 import androidx.recyclerview.widget.RecyclerView
 import com.esri.arcgisruntime.mapping.ArcGISMap
-
-
-
-
-
-
+import com.example.android.mapviewer.data.MapItem
 
 
 class PortalSearch {
@@ -32,6 +27,7 @@ class PortalSearch {
     private var mPortalQueryResultSet: PortalQueryResultSet<PortalItem>? = null
    // public lateinit var mPortalItemList:List<PortalItem>
     private val mRecyclerView: RecyclerView? = null
+    private  var mMapItems:List<MapItem> = emptyList()
 
 
     fun findItems()
@@ -39,7 +35,7 @@ class PortalSearch {
 
     }
 
-    private fun adapterOnClick(portalItem: PortalItem) {
+    private fun adapterOnClick(mapItem: MapItem) {
         //val navController = NavHostFragment.findNavController(this)
         //this.findNavController().navigate()
         // val intent = Intent(thiscontext, ShoeDetailFragment()::class.java)
@@ -53,6 +49,7 @@ class PortalSearch {
         // create query parameters specifying the type webmap
         val params = PortalQueryParameters()
         params.setQuery(PortalItem.Type.WEBMAP, "Appstudio632", keyword)
+        val portalUrl = getPortalUrl()
         // find matching portal items. This search may field a large number of results (limited to 10 be default). Set the
         // results limit field on the query parameters to change the default amount.
         val results: ListenableFuture<PortalQueryResultSet<PortalItem>> =
@@ -65,12 +62,17 @@ class PortalSearch {
                 mPortalQueryResultSet = results.get()
                // left?.let { queue.add(it) }
                 mPortalItemList = mPortalQueryResultSet?.let{it.getResults()} as List<PortalItem>
-                val portalItemAdapter:PortalItemAdapter = PortalItemAdapter (mPortalItemList!!, { portalItem ->
-                    adapterOnClick(portalItem)}
+                mMapItems = mPortalItemList.map {
+
+                    MapItem(it.itemId,it.title,it.owner,it.created,it.size,portalUrl.plus("/").plus(it.itemId).plus("/info/thumbnail/ago_downloaded.png"))
+                }
+               /* val portalItemAdapter:PortalItemAdapter = PortalItemAdapter (mMapItemList!!, { mapItem ->
+                    adapterOnClick(mapItem)}
+                )*/
+                val portalItemAdapter:PortalItemAdapter = PortalItemAdapter ( mMapItems, {mapItem ->
+                    adapterOnClick(mapItem)}
                 )
-                    /*{
-                        //portalItem -> addMap(portal, portalItem.getItemId())
-                }*/
+
 
                 if (mRecyclerView != null) {
                     mRecyclerView.setAdapter(portalItemAdapter)
@@ -123,6 +125,7 @@ class PortalSearch {
     companion object {
 
       private lateinit var mPortalItemList: List<PortalItem>
+
      fun getPortalItems():List<PortalItem>
      {
 

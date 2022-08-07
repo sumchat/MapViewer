@@ -15,11 +15,20 @@
             app:destination="@id/mapGalleryFragment" />
     </fragment>
     <fragment
+        android:id="@+id/showPopupWindow"
+        android:name="com.example.android.mapviewer.ShowPopupWindow"
+        android:label="ShowPopupWindow" />
+    <fragment
         android:id="@+id/mapFragment"
         android:name="com.example.android.mapviewer.MapFragment"
         android:label="fragment_mappage"
         tools:layout="@layout/fragment_mappage" >
+        <action
+            android:id="@+id/action_mapFragment_to_showPopupWindow"
+            app:destination="@id/showPopupWindow" />
         <argument android:name="myArg"
+            app:argType="string" />
+        <argument android:name="mapTitle"
             app:argType="string" />
     </fragment>
     <fragment
@@ -36,6 +45,18 @@
 
 
             />
+            <argument
+                android:name="mapTitle"
+                app:argType= "string"
+
+
+                />
             </action>
     </fragment>
+    <fragment
+        android:id="@+id/reminderListFragment"
+        android:name="com.example.android.mapviewer.reminderslist.ReminderListFragment"
+        android:label="fragment_reminders"
+        tools:layout="@layout/fragment_reminders" />
+
 </navigation>

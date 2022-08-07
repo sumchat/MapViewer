@@ -1,68 +1,121 @@
 package com.example.android.mapviewer
 
+import android.Manifest
+import android.annotation.TargetApi
+import android.app.Activity
 import android.content.Context
-import android.graphics.Point
-import androidx.appcompat.app.AppCompatActivity
+import android.content.IntentSender
+import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.widget.LinearLayout
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.NonNull
-import androidx.databinding.DataBindingUtil.setContentView
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.activity.viewModels
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.NavigationUI
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
 import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.popup.Popup
 import com.esri.arcgisruntime.mapping.popup.PopupField
-import com.esri.arcgisruntime.mapping.view.MapView
 import com.esri.arcgisruntime.portal.Portal
 import com.esri.arcgisruntime.portal.PortalItem
-import com.example.android.mapviewer.data.DataSource
-import com.example.android.mapviewer.databinding.FragmentMappageBinding
-import com.example.android.mapviewer.databinding.FragmentWelcomeBinding
-import com.google.android.material.navigation.NavigationView
-import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener
-import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult
+//import com.example.android.mapviewer.databinding.FragmentMappageBinding
 import com.example.android.mapviewer.data.FieldItem
-import kotlin.math.roundToInt
-//import com.esri.arcgisruntime.toolkit.popup.PopupViewModel
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.tabs.TabLayout
+import com.esri.arcgisruntime.geometry.SpatialReferences
+
+import com.esri.arcgisruntime.geometry.GeometryEngine
+import com.esri.arcgisruntime.geometry.SpatialReferences.getWebMercator
+import com.esri.arcgisruntime.mapping.view.*
+import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
+import com.esri.arcgisruntime.symbology.SimpleRenderer
+import com.example.android.mapviewer.locationreminders.ReminderDataItem
+import com.example.android.mapviewer.locationreminders.SaveReminderViewModel
+import com.example.android.mapviewer.reminderslist.RemindersListViewModel
+import com.example.android.mapviewer.utils.fadeIn
+import com.example.android.mapviewer.utils.fadeOut
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.Priority
+import com.google.android.material.snackbar.Snackbar
+import org.koin.android.ext.android.inject
+import com.esri.arcgisruntime.mapping.view.Graphic
+
+import com.esri.arcgisruntime.geometry.Geometry
+import com.esri.arcgisruntime.geometry.Point
+import com.example.android.mapviewer.geofence.GeofencingConstants.GEOFENCE_RADIUS_IN_METERS
+import com.esri.arcgisruntime.symbology.SimpleFillSymbol
+
+import com.esri.arcgisruntime.symbology.SimpleLineSymbol
+import com.example.android.mapviewer.locationreminders.ReminderObject
+import com.example.android.mapviewer.locationreminders.data.ReminderDataSource
 
 
-class MapFragment : Fragment(){//AppCompatActivity() {
+class MapFragment : Fragment(){
     lateinit var thiscontext: Context
+    lateinit var _inflater:LayoutInflater
+    private var parentLinearLayout: ConstraintLayout? = null
     private lateinit var viewOfLayout: View
     private lateinit var viewOfLayoutresults: View
     private lateinit var mRecyclerView1: RecyclerView
     private lateinit var headerText: TextView
+    private lateinit var tabView:View
+    private lateinit var viewPager: ViewPager2 // creating object of ViewPager
+    private lateinit var tabLayout: TabLayout
+    private lateinit var behavior:BottomSheetBehavior<ConstraintLayout>
+    private val runningQOrLater = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q
 
     private lateinit  var portalItem:PortalItem
+    private var lat:Double = 0.0
+    private var long:Double = 0.0
+    public var _graphicsOverlay: GraphicsOverlay? = null
     private val selectedFeatures by lazy { ArrayList<Feature>() }
    // private val popupViewModel: PopupViewModel by viewModels()
    private lateinit var _fieldItemAdapter:FieldValueAdapter
+    val _remindersviewModel: RemindersListViewModel  by inject()
+    val remindersLocalRepository by inject<ReminderDataSource>()
 
-    private val activityMainBinding by lazy {
-        FragmentMappageBinding.inflate(layoutInflater)
-    }
 
-    private val mapView: MapView by lazy {
+    val _viewModel: SaveReminderViewModel by inject()
+
+    public val mapView: MapView by lazy {
         viewOfLayoutresults.findViewById(R.id.mapView)
         //activityMainBinding.mapView
     }
+    private val resultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            getContext()?.let { checkDeviceLocationSettingsAndStartPopup(it) }
+        }
+    }
+
+
+   private val requestPermissionsResultLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission())
+   {
+           isGranted ->
+       if(isGranted){
+           Log.i("DEBUG","permission granted")
+           checkDeviceLocationSettingsAndStartPopup(thiscontext)
+       }
+       else{
+           Log.i("DEBUG", "permission denied")
+       }
+   }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,38 +127,438 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         //findNavController().navigate(action)
 
           }
+    fun deleteView(view: View) {
+        val parentLinearLayout = viewOfLayoutresults.findViewById<ConstraintLayout>(R.id.sheet_container)
+
+        parentLinearLayout!!.removeView(view.parent as View)
+    }
+    fun addView(childview: View) {
+
+        val parentLinearLayout = viewOfLayoutresults.findViewById<ConstraintLayout>(R.id.sheet_container)
+
+
+        parentLinearLayout!!.addView(childview, parentLinearLayout!!.childCount - 1)
+        val identifyLayout = parentLinearLayout.findViewById<ConstraintLayout>(R.id.identify_container)
+        val params = identifyLayout.layoutParams
+        val _ht = parentLinearLayout.height
+        //bottomSheet.getLayoutParams().height = bottomSheet.getHeight() - accountHeight;
+       // parentLinearLayout.requestLayout();
+        params.height = _ht
+
+        identifyLayout.setLayoutParams(params)
+
+
+
+
+        tabLayout = parentLinearLayout.findViewById<TabLayout>(R.id.tab_layout)
+        viewPager = parentLinearLayout.findViewById<ViewPager2>(R.id.pager)
+
+
+        val saveReminderBtn = parentLinearLayout.findViewById<FloatingActionButton>(R.id.saveReminder)
+        saveReminderBtn.setOnClickListener{
+            checkPermissionsAndOpenPopup(thiscontext)
+
+        }
+    }
+
+    fun addIdentifyView()
+    {
+        val bottomsheet = viewOfLayoutresults.findViewById<ConstraintLayout>(R.id.sheet_container)
+        // get ahold of the instance of your layout
+        // get ahold of the instance of your layout
+        //val dynamicContent = findViewById(R.id.dynamic_content) as LinearLayout
+
+        behavior = BottomSheetBehavior.from(bottomsheet)
+        // behavior.setPeekHeight(200)
+
+      //  val identifyView: View = _inflater.inflate(R.layout.fragment_identify, null)
+        val identifyLayout = bottomsheet.findViewById<ConstraintLayout>(R.id.identify_container)
+        if(identifyLayout === null) {
+            val identifyView: View =
+                LayoutInflater.from(thiscontext).inflate(R.layout.fragment_identify, null)
+
+
+            addView(identifyView)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        //activityMainBinding.
-        // return inflater.inflate(R.layout.fragment_instruction, container, false)
-        //var bBinding : ViewDataBinding? = DataBindingUtil.inflate(inflater,R.layout.fragment_instruction,container,false)
-
-       //var bundle:Bundle? = getArguments()
-       //var portalItem:PortalItem = bundle.get(portalItem) as PortalItem
+        _inflater = inflater
         if (container != null) {
             thiscontext = container.getContext()
         }
         viewOfLayoutresults = inflater.inflate(R.layout.fragment_mappage, container, false)
-         mRecyclerView1 = viewOfLayoutresults.findViewById(R.id.recycler_view1)
-        headerText = viewOfLayoutresults.findViewById(R.id.textView3)
+
+        val _bottomSheet = viewOfLayoutresults.findViewById<ConstraintLayout>(R.id.sheet_container)
+         behavior = BottomSheetBehavior.from(_bottomSheet)
+        // behavior.setPeekHeight(200)
+
+
+
+        tabView = viewOfLayoutresults.findViewById<View>(R.id.identify)//.visibility = View.VISIBLE
+
+        tabLayout = viewOfLayoutresults.findViewById<TabLayout>(R.id.tab_layout)
+        viewPager = viewOfLayoutresults.findViewById<ViewPager2>(R.id.pager)
+
+
+         val saveReminderBtn = viewOfLayoutresults.findViewById<FloatingActionButton>(R.id.saveReminder)
+       // saveReminderBtn.fadeIn()
+         saveReminderBtn.setOnClickListener{
+             checkPermissionsAndOpenPopup(thiscontext)
+
+        }
+        _remindersviewModel.remindersList.observe(viewLifecycleOwner, {
+            it?.let {
+                showReminders(it as MutableList<ReminderDataItem>)
+            }
+        })
+
+
+
 
         var args = MapFragmentArgs.fromBundle(requireArguments())
        // val _itemId = getArguments()?.getString("itemId")
         val _itemId: String = args.myArg
+        val _title:String = args.mapTitle
         //portalItem = args.itemId
         setApiKeyForApp()
+        setHasOptionsMenu(true)
 
-        setupMap(_itemId)
+        setupMap(_itemId,_title)
+        _graphicsOverlay = GraphicsOverlay()
+        val pointSymbol =
+            SimpleMarkerSymbol(SimpleMarkerSymbol.Style.DIAMOND, Color.RED, 10f)
+        val pointRenderer = SimpleRenderer(pointSymbol)
+        _graphicsOverlay?.renderer = pointRenderer
+        mapView.graphicsOverlays.add(_graphicsOverlay)
         //viewOfLayout = inflater.inflate(R.layout.fieldvalue_row, container, false)
         return viewOfLayoutresults // activityMainBinding.root
 
     }
 
-    private fun setupMap(_itemId:String) {
+    fun showReminders(remindersList: MutableList<ReminderDataItem>)
+    {
+        renderPointGraphicsOverlay(remindersList)
+    }
+
+    /**
+     * Create a point, its graphic, a graphics overlay for it, and add it to the map view.
+     * */
+    private fun renderPointGraphicsOverlay(remindersList: MutableList<ReminderDataItem>) {
+        mapView.graphicsOverlays.clear()
+        val _graphicsOverlay = GraphicsOverlay()
+        val _planarGraphicsOverlay = GraphicsOverlay()
+        // create a fill symbol for planar buffer polygons
+        // create a fill symbol for planar buffer polygons
+        val planarOutlineSymbol = SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLACK, 2F)
+        val planarBufferFillSymbol = SimpleFillSymbol(
+            SimpleFillSymbol.Style.SOLID, Color.RED,
+            planarOutlineSymbol
+        )
+        val circleRenderer = SimpleRenderer(planarBufferFillSymbol)
+        _planarGraphicsOverlay.renderer = circleRenderer
+        _planarGraphicsOverlay.opacity= 0.5f
+        val wgs84 = SpatialReferences.getWgs84()
+        val pointSymbol =
+            SimpleMarkerSymbol(SimpleMarkerSymbol.Style.DIAMOND, Color.RED, 10f)
+        // create simple renderer
+        val pointRenderer = SimpleRenderer(pointSymbol)
+        _graphicsOverlay?.renderer = pointRenderer
+        for (pt in remindersList) {
+            val pointGeometry = pt.latitude?.let {
+                pt.longitude?.let { it1 ->
+                    com.esri.arcgisruntime.geometry.Point(
+                        it1,
+                        it,wgs84
+                    )
+                }
+            }
+            val pointGraphic = Graphic(pointGeometry)
+            _graphicsOverlay?.graphics?.add(pointGraphic)
+            // create a planar buffer graphic around the input location at the specified distance
+            // create a planar buffer graphic around the input location at the specified distance
+            val _projGeom = GeometryEngine.project(pointGeometry, getWebMercator())
+            val bufferGeometryPlanar: Geometry = GeometryEngine.buffer(_projGeom,
+                GEOFENCE_RADIUS_IN_METERS.toDouble()
+            )
+            val planarBufferGraphic = Graphic(bufferGeometryPlanar)
+            _planarGraphicsOverlay.graphics.add(planarBufferGraphic)
+
+        }
+        mapView.graphicsOverlays.add(_graphicsOverlay)
+        mapView.graphicsOverlays.add(_planarGraphicsOverlay)
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.overflow_menu,menu)
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        //viewModel.logOut()
+        //return NavigationUI.onNavDestinationSelected(item, requireView().findNavController())
+         //       || super.onOptionsItemSelected(item)
+       when(item.title){
+          "Reminders" ->{
+
+                  tabLayout.removeAllTabs()
+                  val saveReminderBtn =
+                      viewOfLayoutresults.findViewById<FloatingActionButton>(R.id.saveReminder)
+                  saveReminderBtn.fadeOut()
+                  tabLayout!!.addTab(tabLayout!!.newTab().setText("Reminders"))
+
+                  tabLayout!!.tabGravity = TabLayout.GRAVITY_FILL
+                  val identifyAdapter = IdentifyFragmentAdapter(
+                      "ShowReminders",
+                      null,
+                      null,
+                      requireActivity(),
+                      tabLayout!!.tabCount
+                  )//ViewPagerAdapter(this, supportFragmentManager, tabLayout!!.tabCount)
+                  viewPager!!.adapter = identifyAdapter
+
+                  tabLayout!!.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                      override fun onTabSelected(tab: TabLayout.Tab) {
+                          viewPager!!.currentItem = tab.position
+                      }
+
+                      override fun onTabUnselected(tab: TabLayout.Tab) {
+
+                      }
+
+                      override fun onTabReselected(tab: TabLayout.Tab) {
+
+                      }
+                  })
+                  (view?.height)?.div(2)?.let { behavior.setPeekHeight(it) }
+                  behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED//STATE_EXPANDED
+
+                  _remindersviewModel.remindersList.observe(viewLifecycleOwner, {
+                      it?.let {
+                          showReminders(it as MutableList<ReminderDataItem>)
+                      }
+                  })
+
+                  _remindersviewModel.activeReminderDataItem.observe(viewLifecycleOwner, {
+                      it?.let {
+                          showOrDeleteReminderLocation(it as ReminderObject)
+                      }
+                  })
+                  return true
+
+
+          }
+           else -> return super.onOptionsItemSelected(item);
+       }
+
+
+    }
+
+    fun showOrDeleteReminderLocation(reminderDataObject: ReminderObject)
+    {
+        val reminderDataItem = reminderDataObject.reminderItem
+        if(reminderDataObject.action === "zoom") {
+            val wgs84 = SpatialReferences.getWgs84()
+            //for (pt in remindersList) {
+            val pointGeometry = reminderDataItem?.latitude?.let {
+                reminderDataItem.longitude?.let { it1 ->
+                    com.esri.arcgisruntime.geometry.Point(
+                        it1,
+                        it, wgs84
+                    )
+                }
+            }
+            val _projGeom = GeometryEngine.project(pointGeometry, getWebMercator())
+            // set viewpoint of map view to starting point and scale
+            mapView.setViewpointCenterAsync(_projGeom as Point?, mapView.mapScale)
+        }
+        else
+        {
+           val geofencingClient = LocationServices.getGeofencingClient(thiscontext)
+            val geofenceId = reminderDataItem?.id
+            geofencingClient.removeGeofences(listOf(geofenceId))?.run {
+                addOnSuccessListener { //in case of success removing
+                    Log.d("GeofenceUtil", getString(R.string.geofence_removed))
+                    Toast.makeText(
+                        thiscontext,
+                        getString(R.string.geofence_removed),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    if (geofenceId != null) {
+                        try {
+                            _remindersviewModel.deleteReminder(geofenceId)
+
+                        }
+                        catch(ex:java.lang.Exception)
+                        {
+                            val error = "Error deleting reminder: " + ex.message
+                        }
+                       // remindersLocalRepository.deleteReminder(geofenceId)
+                       //_viewModel.deleteReminder(geofenceId)
+                    }
+
+                }
+                addOnFailureListener { ////in case of failure
+                    Toast.makeText(
+                        thiscontext,
+                        getString(R.string.geofence_not_removed),
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                    Log.d("GeofenceUtil", getString(R.string.geofence_not_removed))
+                }
+            }
+
+        }
+
+    }
+
+
+
+    /*
+ *  Determines whether the app has the appropriate permissions across Android 10+ and all other
+ *  Android versions.
+ */
+    @TargetApi(29)
+
+        private fun foregroundLocationPermissionApproved(context: Context): Boolean {
+        val foregroundLocationApproved = (
+                PackageManager.PERMISSION_GRANTED ==
+                        ActivityCompat.checkSelfPermission(context,
+                            Manifest.permission.ACCESS_FINE_LOCATION))
+
+        return foregroundLocationApproved
+    }
+
+
+
+    /**
+     * Starts the permission check and Geofence process only if the Geofence associated with the
+     * current hint isn't yet active.
+     */
+    private fun checkPermissionsAndOpenPopup(context: Context) {
+        if (foregroundLocationPermissionApproved(context)) {
+            checkDeviceLocationSettingsAndStartPopup(context)
+        } else {
+            requestForegroundLocationPermissions()
+        }
+    }
+
+    /*
+   *  Uses the Location Client to check the current state of location settings, and gives the user
+   *  the opportunity to turn on location services within our app.
+   */
+    private fun checkDeviceLocationSettingsAndStartPopup(context: Context, resolve: Boolean = true) {
+        val locationRequest = LocationRequest.create().apply {
+            priority = Priority.PRIORITY_LOW_POWER//LocationRequest.PRIORITY_LOW_POWER
+        }
+        val locationSettingRequestsBuilder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val settingsClient = LocationServices.getSettingsClient(context)
+        val locationSettingsResponseTask =
+            settingsClient.checkLocationSettings(locationSettingRequestsBuilder.build())
+        locationSettingsResponseTask.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException && resolve) {
+                try {
+                    val intentSenderRequest =
+                        IntentSenderRequest.Builder(exception.resolution).build()
+                    resultLauncher.launch(intentSenderRequest)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    Log.d("DeviceLocation", "Error getting location settings resolution: " + sendEx.message)
+                }
+            } else {
+                Snackbar.make(
+                    this.requireView(),
+                    R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
+                ).setAction(android.R.string.ok) {
+                    checkDeviceLocationSettingsAndStartPopup(context)
+                }.show()
+            }
+        }
+        locationSettingsResponseTask.addOnCompleteListener {
+            if (it.isSuccessful) {
+                Log.d("Devicelocation", "Device location enabled")
+                showPopupForReminder()
+            }
+        }
+    }
+
+    fun showPopupForReminder()
+    {
+        getActivity()?.let { it1 -> ShowPopupWindow().show(it1.supportFragmentManager, "popup") }
+
+    }
+
+
+    /*
+    *  Requests ACCESS_FINE_LOCATION and (on Android 10+ (Q) ACCESS_BACKGROUND_LOCATION.
+    */
+    @TargetApi(29)
+    private fun requestForegroundLocationPermissions() {
+        if (foregroundLocationPermissionApproved(thiscontext))
+            return
+
+        if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            Toast.makeText(
+                thiscontext,
+                R.string.permission_denied_explanation, Toast.LENGTH_SHORT
+            )
+                .show()
+        } else {
+            try {
+                   requestPermissionsResultLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+            catch(ex: java.lang.Exception)
+            {
+                Log.d("Permission",ex.message.toString())
+            }
+
+        }
+        Log.d("Permission", "Request foreground and background only location permission")
+
+    }
+
+
+
+    fun setUpTabs(fldItems:MutableList<FieldItem>,title:String,_feature:Feature,featureType:String){
+       // addIdentifyView()
+        tabLayout.removeAllTabs()
+       when(featureType.uppercase()){
+           "POLYLINE" ->
+           {
+               tabLayout!!.addTab(tabLayout!!.newTab().setText("Feature"))
+               tabLayout!!.addTab(tabLayout!!.newTab().setText("Profile"))
+           }
+           else ->{
+               tabLayout!!.addTab(tabLayout!!.newTab().setText("Feature"))
+           }
+
+
+       }
+        tabLayout!!.tabGravity = TabLayout.GRAVITY_FILL
+        val identifyAdapter = IdentifyFragmentAdapter("Identify",fldItems,_feature,requireActivity(),tabLayout!!.tabCount)//ViewPagerAdapter(this, supportFragmentManager, tabLayout!!.tabCount)
+        viewPager!!.adapter = identifyAdapter
+        val saveReminderBtn = viewOfLayoutresults.findViewById<FloatingActionButton>(R.id.saveReminder)
+        saveReminderBtn.fadeIn()
+
+        tabLayout!!.addOnTabSelectedListener(object:TabLayout.OnTabSelectedListener{
+            override fun onTabSelected(tab:TabLayout.Tab)
+            {
+                viewPager!!.currentItem = tab.position
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab) {
+
+            }
+            override fun onTabReselected(tab: TabLayout.Tab) {
+
+            }
+        })
+    }
+
+    private fun setupMap(_itemId:String,_title:String) {
 
         // create a map with the BasemapStyle streets
         //val map = ArcGISMap(BasemapStyle.ARCGIS_TOPOGRAPHIC)
@@ -117,8 +570,11 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         val portal = Portal(_portalUrl, false)
 
         val itemId = _itemId//"4ab2c027c1a14ca0b67ede51c7bcf606"
-        val portalItem = PortalItem(portal, itemId)
+         portalItem = PortalItem(portal, itemId)
         val map = ArcGISMap(portalItem)
+       // (activity as AppCompatActivity).setSupportActionBar(toolbar_name)
+        (activity as AppCompatActivity).supportActionBar?.title = _title
+        mapView.resume()
         mapView.apply {
             this.map = map
 
@@ -126,23 +582,17 @@ class MapFragment : Fragment(){//AppCompatActivity() {
             onTouchListener = object : DefaultMapViewOnTouchListener(thiscontext, this) {
                 override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
                     e?.let {
-                        val screenPoint = Point(
-                            it.x.roundToInt(),
-                            it.y.roundToInt()
+                        val screenPoint = android.graphics.Point(
+                            it.x.toInt(),
+                            it.y.toInt()
                         )
                         identifyResult(screenPoint)
                     }
                     return true
                 }
             }
+
         }
-
-        //mapView.map = map
-
-        // set the viewpoint, Viewpoint(latitude, longitude, scale)
-        //  mapView.setViewpoint(Viewpoint(34.0270, -118.8050, 72000.0))
-
-
 
     }
 
@@ -151,10 +601,30 @@ class MapFragment : Fragment(){//AppCompatActivity() {
      *
      * @param screenPoint in Android graphic coordinates.
      */
-    private fun identifyResult(screenPoint: Point) {
+    private fun identifyResult(screenPoint: android.graphics.Point) {
 
         val identifyLayerResultsFuture = mapView
             .identifyLayersAsync(screenPoint, 12.0, false, 10)
+        // create a map point from screen point
+
+        val mapPoint: com.esri.arcgisruntime.geometry.Point? = mapView.screenToLocation(screenPoint)
+        // convert to WGS84 for lat/lon format
+
+        val wgs84Point:com.esri.arcgisruntime.geometry.Point =
+            GeometryEngine.project(mapPoint, SpatialReferences.getWgs84()) as com.esri.arcgisruntime.geometry.Point
+        // format output
+        lat = wgs84Point.y
+        long = wgs84Point.x
+        _viewModel.longitude.postValue(long)
+        _viewModel.latitude.postValue(lat)
+
+        Log.d(
+            TAG,
+            "Lat: " + java.lang.String.format(
+                "%.4f",
+                wgs84Point.y
+            ) + ", Lon: " + java.lang.String.format("%.4f", wgs84Point.x)
+        )
 
         identifyLayerResultsFuture.addDoneListener {
             try {
@@ -166,7 +636,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         }
     }
 
-    private fun populateIdentifyProperties(_feature:Feature,layerName:String,popup:Popup):List<FieldItem>
+    private fun populateIdentifyProperties(_feature:Feature,layerName:String,popup:Popup):MutableList<FieldItem>
     {
          val featureTable = _feature.featureTable;
         val _popupDefinition = popup.popupDefinition
@@ -204,6 +674,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
 
         for (identifyLayerResult in identifyLayerResults) {
             if(totalCount === 0) {
+                mapView.graphicsOverlays.clear()
                 val count = recursivelyCountIdentifyResultsForSublayers(identifyLayerResult)
                 val layerName = identifyLayerResult.layerContent.name
                 val featureLayer: FeatureLayer? =
@@ -213,41 +684,19 @@ class MapFragment : Fragment(){//AppCompatActivity() {
                 //selectedFeatures.addAll(identifiedFeatures)
                 // featureLayer?.selectFeature(identifyLayerResult.popups.first().geoElement as Feature)
                 val _feature = identifyLayerResult.popups.first().geoElement as Feature
+                featureLayer?.clearSelection()
                 featureLayer?.selectFeature(_feature)
                 val fldItems = populateIdentifyProperties(
                     _feature,
                     layerName,
                     identifyLayerResult.popups.first()
                 )
-
-                headerText.text =  identifyLayerResult.popups.first().title
-
-              /*  _fieldItemAdapter = FieldValueAdapter(fldItems
-                ) { fldItem ->
-                    adapterOnClick(fldItem)
-                }*/
-
-                _fieldItemAdapter = FieldValueAdapter()
-
-
-
-
-
-                if (mRecyclerView1 != null) {
-                    mRecyclerView1.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL ,false)
-
-                    mRecyclerView1.adapter = _fieldItemAdapter
-                    _fieldItemAdapter.submitList(fldItems)
-
-
-                   // _fieldItemAdapter.notifyDataSetChanged();
-
-                }
-
-
-                // add the features to the current feature layer selection
-                // featureLayer?.selectFeatures(identifiedFeatures)
-                // message.append(layerName).append(": ").append(count)
+                val _title = identifyLayerResult.popups.first().title
+                val _featureType = featureLayer?.featureTable?.geometryType//"Point"
+               // addIdentifyView()
+                setUpTabs(fldItems,_title,_feature,_featureType.toString())
+                (view?.height)?.div(2)?.let { behavior.setPeekHeight(it) }
+                behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED//STATE_EXPANDED
 
                 // add new line character if not the final element in array
                 if (identifyLayerResult != identifyLayerResults[identifyLayerResults.size - 1]) {
@@ -323,34 +772,7 @@ class MapFragment : Fragment(){//AppCompatActivity() {
         super.onDestroy()
     }
 
-   /* override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        //setContentView(R.layout.fragment_mappage)
-        var container = findViewById(R.id.container) as LinearLayout
-        var params = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        //params.setMargins(layout_marginTop(10), dpTopx(10), dpTopx(10), dpTopx(10))
-        params.setMargins(10,10,10,10)
-        container.setLayoutParams(params)
-        container.setOrientation(LinearLayout.VERTICAL)
-       // container.addView(l);
-        //var mainTabFragment : Fragment? = null
-       // mainTabFragment = MainTabFragment.newInstance()
-       // container.addView(mainTabFragment.view)
-    }*/
 
-    /*private fun setUpToolbar() {
-
-        val mainActivity = mActivity as MainActivity
-        val navigationView: NavigationView = mActivity.findViewById(R.id.navView)
-        val navController = NavHostFragment.findNavController(this)
-        val appBarConfiguration = mainActivity.appBarConfiguration
-        NavigationUI.setupActionBarWithNavController(mainActivity,navController,appBarConfiguration)
-        NavigationUI.setupWithNavController(navigationView,navController)
-
-    }*/
     private companion object {
         private val TAG: String = "MapFragment"
     }
