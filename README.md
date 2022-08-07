@@ -1,4 +1,7 @@
-# MapViewer
+# MapViewer - A short Video
+
+https://user-images.githubusercontent.com/6456871/183304200-724f92d1-7471-4b57-a37b-802e27932401.mp4
+
 ![image](https://user-images.githubusercontent.com/6456871/178089737-a06dd12f-01d4-42c2-ba1e-8a229d749e1b.png)
 
 Click Next
@@ -19,5 +22,4 @@ click on any feature on the map. The feature should get selected. The recyclervi
 ![image](https://user-images.githubusercontent.com/6456871/179329793-4fc9acaa-39c2-4874-811f-4069589ee3e9.png)
 
 
-https://user-images.githubusercontent.com/6456871/183304200-724f92d1-7471-4b57-a37b-802e27932401.mp4
 
