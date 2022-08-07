@@ -14,7 +14,7 @@ https://user-images.githubusercontent.com/6456871/183304440-c63ee331-31c4-4dae-a
 Instructions:
   This application uses [ArcGIS Runtime API for Android](https://developers.arcgis.com/android/get-started/) to display webmaps and incorporates capabilities like identify and display feature details, drawing elevation profile of any line segment and also to draw a   buffer around the feature which is added for geofence reminder. Geofencing API from Google is used to create the reminders.
   1. Create a START page that uses the motionLayout
-  2. MapGallery - Create a screen that displays the list of webmaps available for the account in ArcGISOnline by using a groupID. Glide is used to show the thumbnails of the webmaps. 
+  2. MapGallery - Create a screen that displays the list of webmaps available for the account in [ArcGISOnline](https://www.arcgis.com/home/index.html) by using a groupID. Glide is used to show the thumbnails of the webmaps. 
   3. MapPage - Selecting any map in the MapGallery will navigate to the desired map page. 
   4. Selecting any feature will display the details in a bottom sheet. if it is line feature then there will be 2 tabs one for details and other for the elevation profile. The data for the elevation profile is fetched using the Retrofit and Moshi library.
   5. Then user can save the location of any feature as a geofence reminder. The form to enter the details for geofence will be shown as a Dialog fragment and data will be saved in a local database using Room library. To be able to create a geofence reminder the user need to give access to the Location Permission.
