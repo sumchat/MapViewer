@@ -12,7 +12,7 @@ https://user-images.githubusercontent.com/6456871/183304440-c63ee331-31c4-4dae-a
 * You can also delete a reminder from the list.
 
 Instructions:
-  This application uses ArcGIS Runtime API for Android to display webmaps and incorporates capabilities like identify and display feature details, drawing elevation profile of any line segment and also to draw a   buffer around the feature which is added for geofence reminder. Geofencing API from Google is used to create the reminders.
+  This application uses [ArcGIS Runtime API for Android](https://developers.arcgis.com/android/get-started/) to display webmaps and incorporates capabilities like identify and display feature details, drawing elevation profile of any line segment and also to draw a   buffer around the feature which is added for geofence reminder. Geofencing API from Google is used to create the reminders.
   1. Create a START page that uses the motionLayout
   2. MapGallery - Create a screen that displays the list of webmaps available for the account in ArcGISOnline by using a groupID. Glide is used to show the thumbnails of the webmaps. 
   3. MapPage - Selecting any map in the MapGallery will navigate to the desired map page. 
