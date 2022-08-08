@@ -18,31 +18,10 @@
             android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="0dp"
-            android:layout_marginBottom="0dp"
+            android:layout_marginTop="@dimen/dimen_0"
+            android:layout_marginBottom="@dimen/dimen_0"
             app:layout_constraintBottom_toTopOf="@+id/container"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <!--<LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/scheduleSheet"
-            app:behavior_peekHeight="100dp"
-            android:elevation="16dp"
-            android:clickable="false"
-            android:focusable="false"
-
-            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/recycler_view1"
-                android:clickable="true"
-                android:focusable="true"
-                android:layout_marginTop="8dp"/>
-
-        </LinearLayout>"@dimen/dimen_32"-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
            android:id="@+id/sheet_container"
@@ -50,115 +29,17 @@
            android:layout_height="match_parent"
            android:background="@color/white"
            app:behavior_hideable="true"
-           app:behavior_peekHeight="1dp"
+           app:behavior_peekHeight="@dimen/dimen_1"
            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-          <!-- <androidx.appcompat.widget.AppCompatImageView
-               android:id="@+id/pull"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_marginTop="10dp"
-               android:src="@drawable/ds_internal_sheet_pull_indicator"
-               app:layout_constraintEnd_toEndOf="parent"
-               app:layout_constraintStart_toStartOf="parent"
-               app:layout_constraintTop_toTopOf="parent"
-               tools:ignore="ContentDescription"/>-->
+
             <include
                 android:id="@+id/identify"
                 layout="@layout/fragment_identify"
                 />
 
-
-
-
-
-          <!-- <TextView
-               android:id="@+id/textView3"
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:padding="24dp"
-               android:text="Header"
-               android:textStyle="bold"
-               app:layout_constraintStart_toStartOf="parent"
-               app:layout_constraintTop_toTopOf="parent" />
-
-
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view1"
-                android:layout_width="match_parent"
-
-                android:elevation="8dp"
-
-                android:layout_height="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textView3"
-
-                android:orientation="vertical"
-                app:layoutManager="LinearLayoutManager"/>
-
--->
-
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-
-            <!-- TODO: Update blank fragment layout -->
-
-            <!-- <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/maptitle"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/mapView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <com.esri.arcgisruntime.mapping.view.MapView
-        android:id="@+id/mapView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/container"
-        app:layout_constraintTop_toTopOf="parent" />-->
-
-            <!-- <LinearLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-    </LinearLayout>-->
-
-            <!--<TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="64dp"
-        android:text="@string/mapinstruction"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>-->
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

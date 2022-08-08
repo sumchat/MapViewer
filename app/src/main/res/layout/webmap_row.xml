@@ -84,9 +84,9 @@
 
         <ImageView
             android:id="@+id/mapThumbnail"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_margin="8dp"
+            android:layout_width="@dimen/dimen_80"
+            android:layout_height="@dimen/dimen_80"
+            android:layout_margin="@dimen/dimen_8"
             app:imageUrl="@{property.imageUrl}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/webmapItem"
@@ -100,10 +100,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="15dp"
+            android:layout_marginStart="@dimen/dimen_10"
+            android:layout_marginLeft="@dimen/dimen_15"
             android:text="@{property.name}"
-            android:textSize="20sp"
+            android:textSize="@dimen/text_size_large"
             android:textStyle="bold" />
 
     </LinearLayout>
