@@ -8,18 +8,18 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="@dimen/dimen_8"
+        android:layout_marginBottom="@dimen/dimen_8"
         android:orientation="horizontal"
-        android:padding="5dp"
+        android:padding="@dimen/dimen_5"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/fieldLabel"
-            android:layout_width="149dp"
+            android:layout_width="@dimen/dimen_149"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
+            android:layout_margin="@dimen/dimen_8"
             android:text="fieldlabel"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/fieldValue"
@@ -29,13 +29,13 @@
 
         <TextView
             android:id="@+id/fieldValue"
-            android:layout_width="152dp"
+            android:layout_width="@dimen/dimen_152"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="15dp"
+            android:layout_marginStart="@dimen/dimen_10"
+            android:layout_marginLeft="@dimen/dimen_15"
             android:text="fieldvalue"
-            android:textSize="20sp"
+            android:textSize="@dimen/text_size_large"
             android:textStyle="bold" />
 
     </LinearLayout>

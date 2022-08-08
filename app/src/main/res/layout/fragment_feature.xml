@@ -16,7 +16,7 @@
         android:id="@+id/textView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp"
+        android:padding="@dimen/dimen_24"
         android:text="Header"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,7 +28,7 @@
         android:id="@+id/recycler_view1"
         android:layout_width="match_parent"
 
-        android:elevation="8dp"
+        android:elevation="@dimen/dimen_8"
 
 
         android:layout_height="wrap_content"

@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var  actionBar: ActionBar
     private lateinit var binding:ActivityMainBinding
+    private lateinit var navController: NavController
     // lateinit var viewModel:LogInViewModel
     private val runningQOrLater =
         android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q
@@ -40,9 +42,11 @@ class MainActivity : AppCompatActivity() {
 
         drawerLayout = binding.drawerLayout
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-        //viewModel = ViewModelProvider(this).get(LogInViewModel::class.java)
 
-        val navController = this.findNavController(R.id.myNavHostFragment)
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.myNavHostFragment) as NavHostFragment
+         navController = navHostFragment.navController
+
+       // val navController = this.findNavController(R.id.myNavHostFragment)
         // val toolbar = this.findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         actionBar = supportActionBar!!
         navController.addOnDestinationChangedListener { _, destination, _ ->
@@ -74,12 +78,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        //val toolbar = this.findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
-
-        // NavigationUI.setupWithNavController(toolbar,navController,appBarConfiguration)
-
-
-        // appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
         appBarConfiguration = AppBarConfiguration(
             setOf(R.id.welcomeFragment),
             drawerLayout)
@@ -90,7 +88,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = this.findNavController(R.id.myNavHostFragment)
+        //val navController = this.findNavController(R.id.myNavHostFragment)
         return NavigationUI.navigateUp(navController, appBarConfiguration)
     }
 
@@ -102,112 +100,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun setUpToolbar() {
 
-       // val mainActivity = mActivity as MainActivity
         val navigationView: NavigationView =  findViewById<NavigationView>(R.id.navView1)
-        val navController = this.findNavController(R.id.myNavHostFragment)
+       // val navController = this.findNavController(R.id.myNavHostFragment) -- deprecated
         NavigationUI.setupActionBarWithNavController(this,navController,appBarConfiguration)
         NavigationUI.setupWithNavController(navigationView,navController)
 
-       // val navController = NavHostFragment.findNavController(this)
-       // val appBarConfiguration = mainActivity.appBarConfiguration
-      //  NavigationUI.setupActionBarWithNavController(mainActivity,navController,appBarConfiguration)
-       // NavigationUI.setupWithNavController(navigationView,navController)
-        // val navigationView: NavigationView = mActivity?.findViewById(R.id.navView)//mainActivity.findViewById(R.id.navView)
-       // val navController = NavHostFragment.findNavController(this)
-        // val appBarConfiguration = mainActivity.appBarConfiguration
-        // NavigationUI.setupActionBarWithNavController(mainActivity,navController,appBarConfiguration)
-        // NavigationUI.setupWithNavController(navigationView,navController)
 
     }
 
-    /*
-   *  Determines whether the app has the appropriate permissions across Android 10+ and all other
-   *  Android versions.
-   */
-  //  @TargetApi(29)
- /*   private fun foregroundAndBackgroundLocationPermissionApproved(): Boolean {
-        val foregroundLocationApproved = (
-                PackageManager.PERMISSION_GRANTED ==
-                        ActivityCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_FINE_LOCATION))
-        val backgroundPermissionApproved =
-            if (runningQOrLater) {
-                PackageManager.PERMISSION_GRANTED ==
-                        ActivityCompat.checkSelfPermission(
-                            this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                        )
-            } else {
-                true
-            }
-        return foregroundLocationApproved && backgroundPermissionApproved
-    }*/
-
-    /*
-     *  Requests ACCESS_FINE_LOCATION and (on Android 10+ (Q) ACCESS_BACKGROUND_LOCATION.
-     */
-   // @TargetApi(29 )
-   /* private fun requestForegroundAndBackgroundLocationPermissions() {
-        if (foregroundAndBackgroundLocationPermissionApproved())
-            return
-
-        // Else request the permission
-        // this provides the result[LOCATION_PERMISSION_INDEX]
-        var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-
-        val resultCode = when {
-            runningQOrLater -> {
-                // this provides the result[BACKGROUND_LOCATION_PERMISSION_INDEX]
-                permissionsArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE
-            }
-            else -> REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
-        }
-
-        Log.d(TAG, "Request foreground only location permission")
-        ActivityCompat.requestPermissions(
-            this@MainActivity,
-            permissionsArray,
-            resultCode
-        )
-    }*/
-
-    /*
-    * In all cases, we need to have the location permission.  On Android 10+ (Q) we need to have
-    * the background permission as well.
-    */
-  /*  override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        Log.d(TAG, "onRequestPermissionResult")
-
-        if (
-            grantResults.isEmpty() ||
-            grantResults[LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED ||
-            (requestCode == REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE &&
-                    grantResults[BACKGROUND_LOCATION_PERMISSION_INDEX] ==
-                    PackageManager.PERMISSION_DENIED))
-        {
-            // Permission denied.
-            Snackbar.make(
-                binding.navView1,
-                R.string.permission_denied_explanation, Snackbar.LENGTH_INDEFINITE
-            )
-                .setAction(R.string.settings) {
-                    // Displays App settings screen.
-                    startActivity(Intent().apply {
-                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    })
-                }.show()
-        } else {
-           // checkDeviceLocationSettingsAndStartGeofence()
-        }
-    }
-*/
 
     fun initializePortal()
      {
